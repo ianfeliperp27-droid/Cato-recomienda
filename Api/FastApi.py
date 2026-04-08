@@ -12,7 +12,7 @@ app = FastAPI(
     version="2.0.0"
 )
 
-# 1. Configuración de CORS: Permite que el Dashboard cargue los datos sin errores de seguridad
+# 1. CORS: Evita bloqueos en el navegador
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -21,7 +21,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 2. Montar archivos estáticos: Para que Azure encuentre imágenes o CSS en la carpeta Api
+# 2. Archivos Estáticos
 if os.path.exists("Api"):
     app.mount("/static", StaticFiles(directory="Api"), name="static")
 
@@ -40,42 +40,38 @@ restaurantes_db: list = []
 @app.get("/", response_class=HTMLResponse)
 def home():
     """Sirve la página de Login"""
-    return FileResponse("Api/login.html")
+    path = "Api/login.html"
+    if not os.path.exists(path):
+        return HTMLResponse(content=f"Error: No se encuentra {path} en el servidor", status_code=404)
+    return FileResponse(path)
 
 @app.get("/dashboard", response_class=HTMLResponse)
 def dashboard():
     """Sirve el Dashboard principal"""
-    # Nota: Asegúrate de que el archivo se llame exactamente DashBoard.html en tu carpeta
-    return FileResponse("Api/DashBoard.html")
+    # Intentamos primero en la carpeta Api
+    path_api = "Api/DashBoard.html"
+    path_root = "DashBoard.html"
+    
+    if os.path.exists(path_api):
+        return FileResponse(path_api)
+    elif os.path.exists(path_root):
+        return FileResponse(path_root)
+    else:
+        # Si falla, te mostrará este mensaje en el navegador en lugar de Error 500
+        return HTMLResponse(content="Error: No se encuentra DashBoard.html. Revisa mayúsculas.", status_code=404)
 
 # --- RUTAS DE LA API ---
 
-@app.get("/restaurantes", summary="Listar todos los restaurantes")
+@app.get("/restaurantes")
 def listar_restaurantes():
     return {"total": len(restaurantes_db), "restaurantes": restaurantes_db}
 
-@app.post("/restaurantes", summary="Crear un restaurante")
+@app.post("/restaurantes")
 def crear_restaurante(restaurante: Restaurante):
-    for r in restaurantes_db:
-        if r["id"] == restaurante.id:
-            raise HTTPException(status_code=400, detail=f"Ya existe un restaurante con id={restaurante.id}")
     restaurantes_db.append(restaurante.model_dump())
-    return {"mensaje": "Restaurante creado exitosamente", "restaurante": restaurante}
+    return {"mensaje": "Creado", "restaurante": restaurante}
 
-@app.get("/restaurantes/buscar/filtro", summary="Filtrar por categoria o estado")
-def filtrar_restaurantes(
-    categoria: Optional[str] = None,
-    activo: Optional[bool] = None
-):
-    resultados = restaurantes_db
-    if categoria:
-        resultados = [r for r in resultados if r["categoria"].lower() == categoria.lower()]
-    if activo is not None:
-        resultados = [r for r in resultados if r["activo"] == activo]
-    
-    return {"total": len(resultados), "restaurantes": resultados}
-
-# --- CARGA DE DATOS INICIALES ---
+# --- CARGA DE DATOS ---
 
 @app.on_event("startup")
 def cargar_datos_prueba():
