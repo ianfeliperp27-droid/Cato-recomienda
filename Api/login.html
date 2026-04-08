@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cato-Recomienda</title>
+  <style>
+    :root {
+      --rojo:    #D62828;
+      --amarillo:#F7B731;
+      --crema:   #FFF8EC;
+      --cafe:    #3D1C00;
+      --gris:    #888;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--crema);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .card {
+      background: white;
+      border-top: 6px solid var(--rojo);
+      border-radius: 12px;
+      padding: 40px 36px;
+      width: 360px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    .header { text-align: center; margin-bottom: 28px; }
+    .header .emoji { font-size: 52px; display: block; margin-bottom: 8px; }
+    .header h1 { font-size: 1.6rem; color: var(--rojo); font-weight: 700; }
+    .header p { font-size: 0.85rem; color: var(--gris); margin-top: 4px; }
+    .campo { margin-bottom: 16px; }
+    .campo label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--cafe); margin-bottom: 6px; }
+    .campo input { width: 100%; padding: 10px 14px; border: 2px solid #E0D5C5; border-radius: 8px; font-size: 0.95rem; color: var(--cafe); background: var(--crema); outline: none; transition: border-color 0.2s; }
+    .campo input:focus { border-color: var(--amarillo); }
+    .error { display: none; background: #FFF0F0; border: 1px solid #FFAAAA; border-radius: 8px; padding: 8px 12px; font-size: 0.83rem; color: var(--rojo); margin-bottom: 14px; text-align: center; }
+    button { width: 100%; padding: 12px; background-color: var(--rojo); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background-color 0.2s; }
+    button:hover { background-color: #B52020; }
+    .footer { text-align: center; margin-top: 20px; font-size: 0.75rem; color: var(--gris); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <span class="emoji">🦆</span>
+      <h1>Cato-Recomienda</h1>
+      <p>Restaurantes cerca de la Católica 🍔</p>
+    </div>
+    <div class="error" id="error">Por favor completa todos los campos.</div>
+    <div class="campo">
+      <label>Usuario</label>
+      <input type="text" id="usuario" placeholder="Ingresa tu usuario">
+    </div>
+    <div class="campo">
+      <label>Contraseña</label>
+      <input type="password" id="contrasena" placeholder="Ingresa tu contraseña">
+    </div>
+    <button onclick="login()">Ingresar</button>
+    <div class="footer">Universidad Católica de Colombia · 2026</div>
+  </div>
+  <script>
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') login();
+    });
+    function login() {
+      var usuario    = document.getElementById('usuario').value.trim();
+      var contrasena = document.getElementById('contrasena').value.trim();
+      var error      = document.getElementById('error');
+      if (usuario === '' || contrasena === '') {
+        error.style.display = 'block';
+        return;
+      }
+      error.style.display = 'none';
+      window.location.href = '/docs';
+    }
+  </script>
+</body>
+</html>
