@@ -1,5 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import Optional
 import os
@@ -10,7 +12,20 @@ app = FastAPI(
     version="2.0.0"
 )
 
-# Definición del modelo
+# 1. Configuración de CORS: Permite que el Dashboard cargue los datos sin errores de seguridad
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# 2. Montar archivos estáticos: Para que Azure encuentre imágenes o CSS en la carpeta Api
+if os.path.exists("Api"):
+    app.mount("/static", StaticFiles(directory="Api"), name="static")
+
+# Modelo de datos
 class Restaurante(BaseModel):
     id: int
     nombre: str
@@ -24,12 +39,13 @@ restaurantes_db: list = []
 
 @app.get("/", response_class=HTMLResponse)
 def home():
-    # Usamos ruta relativa a la carpeta Api para Azure
+    """Sirve la página de Login"""
     return FileResponse("Api/login.html")
 
 @app.get("/dashboard", response_class=HTMLResponse)
 def dashboard():
-    # Esta es la ruta a la que debe redirigir tu login.html
+    """Sirve el Dashboard principal"""
+    # Nota: Asegúrate de que el archivo se llame exactamente DashBoard.html en tu carpeta
     return FileResponse("Api/DashBoard.html")
 
 # --- RUTAS DE LA API ---
@@ -59,11 +75,10 @@ def filtrar_restaurantes(
     
     return {"total": len(resultados), "restaurantes": resultados}
 
-# --- CARGA DE DATOS ---
+# --- CARGA DE DATOS INICIALES ---
 
 @app.on_event("startup")
 def cargar_datos_prueba():
-    # Solo cargamos si la lista está vacía para evitar duplicados en reinicios
     if not restaurantes_db:
         datos = [
             {"id": 1, "nombre": "El Corral Universitario", "categoria": "Hamburguesas", "rating": 4.5, "activo": True},
