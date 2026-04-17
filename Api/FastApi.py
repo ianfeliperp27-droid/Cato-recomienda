@@ -3,7 +3,6 @@ from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-from typing import Optional
 import os
 
 app = FastAPI(
@@ -12,7 +11,11 @@ app = FastAPI(
     version="2.0.0"
 )
 
-# 1. CORS: Evita bloqueos en el navegador
+# 1. Configuración de Rutas Dinámicas
+# Esto asegura que Python encuentre los archivos sin importar dónde se ejecute
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# 2. CORS: Evita bloqueos en el navegador
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -21,11 +24,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 2. Archivos Estáticos
-if os.path.exists("Api"):
-    app.mount("/static", StaticFiles(directory="Api"), name="static")
-
-# Modelo de datos
+# 3. Modelo de datos
 class Restaurante(BaseModel):
     id: int
     nombre: str
@@ -33,40 +32,38 @@ class Restaurante(BaseModel):
     rating: float
     activo: bool
 
-restaurantes_db: list = []
+restaurantes_db = []
 
 # --- RUTAS PARA EL FRONTEND ---
 
 @app.get("/", response_class=HTMLResponse)
 def home():
     """Sirve la página de Login"""
-    path = "Api/login.html"
+    # Buscamos el archivo en la misma carpeta que este script
+    path = os.path.join(BASE_DIR, "login.html")
     if not os.path.exists(path):
-        return HTMLResponse(content=f"Error: No se encuentra {path} en el servidor", status_code=404)
+        return HTMLResponse(content=f"Error: No se encuentra login.html en {BASE_DIR}", status_code=404)
     return FileResponse(path)
 
 @app.get("/dashboard", response_class=HTMLResponse)
 def dashboard():
     """Sirve el Dashboard principal"""
-    # Intentamos primero en la carpeta Api
-    path_api = "Api/DashBoard.html"
-    path_root = "DashBoard.html"
+    # OJO: Verifica que el nombre sea exacto (cato-recomienda (1).html o dashboard.html)
+    # Aquí lo buscamos como dashboard.html que es el estándar
+    path = os.path.join(BASE_DIR, "dashboard.html")
     
-    if os.path.exists(path_api):
-        return FileResponse(path_api)
-    elif os.path.exists(path_root):
-        return FileResponse(path_root)
+    if os.path.exists(path):
+        return FileResponse(path)
     else:
-        # Si falla, te mostrará este mensaje en el navegador en lugar de Error 500
-        return HTMLResponse(content="Error: No se encuentra DashBoard.html. Revisa mayúsculas.", status_code=404)
+        return HTMLResponse(content=f"Error: No se encuentra el archivo HTML del dashboard en {path}", status_code=404)
 
 # --- RUTAS DE LA API ---
 
-@app.get("/restaurantes")
+@app.get("/api/restaurantes")
 def listar_restaurantes():
     return {"total": len(restaurantes_db), "restaurantes": restaurantes_db}
 
-@app.post("/restaurantes")
+@app.post("/api/restaurantes")
 def crear_restaurante(restaurante: Restaurante):
     restaurantes_db.append(restaurante.model_dump())
     return {"mensaje": "Creado", "restaurante": restaurante}
