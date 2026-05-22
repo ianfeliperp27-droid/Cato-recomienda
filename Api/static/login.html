@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cato-Recomienda</title>
+  <style>
+    :root { --rojo:#D62828; --amarillo:#F7B731; --crema:#FFF8EC; --cafe:#3D1C00; --gris:#888; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',sans-serif; background:var(--crema); display:flex; justify-content:center; align-items:center; min-height:100vh; }
+    .card { background:white; border-top:6px solid var(--rojo); border-radius:12px; padding:40px 36px; width:380px; box-shadow:0 4px 20px rgba(0,0,0,0.1); }
+    .header { text-align:center; margin-bottom:24px; }
+    .header img { width:80px; height:80px; border-radius:50%; margin-bottom:10px; }
+    .header h1 { font-size:1.6rem; color:var(--rojo); font-weight:700; }
+    .header p { font-size:0.85rem; color:var(--gris); margin-top:4px; }
+    .tabs { display:flex; margin-bottom:20px; border-bottom:2px solid #eee; }
+    .tab { flex:1; padding:10px; text-align:center; cursor:pointer; font-weight:700; color:var(--gris); border-bottom:3px solid transparent; transition:all 0.2s; }
+    .tab.activo { color:var(--rojo); border-bottom-color:var(--rojo); }
+    .form-section { display:none; }
+    .form-section.activo { display:block; }
+    .campo { margin-bottom:14px; }
+    .campo label { display:block; font-size:0.82rem; font-weight:600; color:var(--cafe); margin-bottom:6px; }
+    .campo input { width:100%; padding:10px 14px; border:2px solid #E0D5C5; border-radius:8px; font-size:0.95rem; color:var(--cafe); background:var(--crema); outline:none; transition:border-color 0.2s; }
+    .campo input:focus { border-color:var(--amarillo); }
+    .error { display:none; background:#FFF0F0; border:1px solid #FFAAAA; border-radius:8px; padding:8px 12px; font-size:0.83rem; color:var(--rojo); margin-bottom:14px; text-align:center; }
+    .success { display:none; background:#F0FFF0; border:1px solid #AAF0AA; border-radius:8px; padding:8px 12px; font-size:0.83rem; color:#2E7D32; margin-bottom:14px; text-align:center; }
+    button { width:100%; padding:12px; background:var(--rojo); color:white; border:none; border-radius:8px; font-size:1rem; font-weight:700; cursor:pointer; transition:background 0.2s; }
+    button:hover { background:#B52020; }
+    .footer { text-align:center; margin-top:16px; font-size:0.75rem; color:var(--gris); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <img src="/static/Cato-Recomienda--Logo.jpg" onerror="this.style.display='none'">
+      <h1>Cato-Recomienda</h1>
+      <p>Restaurantes cerca de la Católica 🍔</p>
+    </div>
+
+    <div class="tabs">
+      <div class="tab activo" onclick="cambiarTab('login')">Iniciar Sesión</div>
+      <div class="tab" onclick="cambiarTab('registro')">Registrarse</div>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="form-section activo" id="seccion-login">
+      <div class="error" id="error-login"></div>
+      <div class="campo"><label>Email</label><input type="email" id="login-email" placeholder="tu@email.com"></div>
+      <div class="campo"><label>Contraseña</label><input type="password" id="login-password" placeholder="Tu contraseña"></div>
+      <button onclick="login()">Ingresar</button>
+    </div>
+
+    <!-- REGISTRO -->
+    <div class="form-section" id="seccion-registro">
+      <div class="error" id="error-registro"></div>
+      <div class="success" id="success-registro"></div>
+      <div class="campo"><label>Nombre</label><input type="text" id="reg-nombre" placeholder="Tu nombre"></div>
+      <div class="campo"><label>Email</label><input type="email" id="reg-email" placeholder="tu@email.com"></div>
+      <div class="campo"><label>Contraseña</label><input type="password" id="reg-password" placeholder="Crea una contraseña"></div>
+      <button onclick="registro()">Crear cuenta</button>
+    </div>
+
+    <div class="footer">Universidad Católica de Colombia · 2026</div>
+  </div>
+
+  <script>
+    function cambiarTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('activo'));
+      document.querySelectorAll('.form-section').forEach(s => s.classList.remove('activo'));
+      document.querySelector(`[onclick="cambiarTab('${tab}')"]`).classList.add('activo');
+      document.getElementById(`seccion-${tab}`).classList.add('activo');
+    }
+
+    async function login() {
+      var email    = document.getElementById('login-email').value.trim();
+      var password = document.getElementById('login-password').value.trim();
+      var errorDiv = document.getElementById('error-login');
+
+      if (!email || !password) {
+        errorDiv.textContent = 'Completa todos los campos.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      try {
+        var res = await fetch('/usuarios/login', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({email, password})
+        });
+        var data = await res.json();
+
+        if (res.ok) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('rol', data.rol);
+          localStorage.setItem('nombre', data.nombre);
+          window.location.href = '/dashboard';
+        } else {
+          errorDiv.textContent = data.detail || 'Credenciales incorrectas.';
+          errorDiv.style.display = 'block';
+        }
+      } catch(e) {
+        errorDiv.textContent = 'Error de conexión.';
+        errorDiv.style.display = 'block';
+      }
+    }
+
+    async function registro() {
+      var nombre   = document.getElementById('reg-nombre').value.trim();
+      var email    = document.getElementById('reg-email').value.trim();
+      var password = document.getElementById('reg-password').value.trim();
+      var errorDiv   = document.getElementById('error-registro');
+      var successDiv = document.getElementById('success-registro');
+
+      if (!nombre || !email || !password) {
+        errorDiv.textContent = 'Completa todos los campos.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      try {
+        var res = await fetch('/usuarios/registro', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({nombre, email, password})
+        });
+        var data = await res.json();
+
+        if (res.ok) {
+          errorDiv.style.display = 'none';
+          successDiv.textContent = '¡Cuenta creada! Ya puedes iniciar sesión.';
+          successDiv.style.display = 'block';
+          setTimeout(() => cambiarTab('login'), 2000);
+        } else {
+          errorDiv.textContent = data.detail || 'Error al registrarse.';
+          errorDiv.style.display = 'block';
+        }
+      } catch(e) {
+        errorDiv.textContent = 'Error de conexión.';
+        errorDiv.style.display = 'block';
+      }
+    }
+
+    document.addEventListener('keydown', e => { if(e.key==='Enter') login(); });
+  </script>
+</body>
+</html>
