@@ -84,3 +84,4 @@ publicador.suscribir(AuditoriaObserver())
 publicador.suscribir(ValidadorRatingObserver())
 publicador.suscribir(EstadisticasObserver())
 
+

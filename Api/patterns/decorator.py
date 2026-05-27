@@ -1,9 +1,11 @@
 import logging
 from typing import Optional
+
 from patterns.adapter import IRestauranteRepository
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("CatoRecomienda")
+
 
 class LoggingRepositoryDecorator(IRestauranteRepository):
     def __init__(self, repositorio: IRestauranteRepository):
@@ -34,7 +36,7 @@ class LoggingRepositoryDecorator(IRestauranteRepository):
         logger.info(f"[PUT] Actualizando id={id}")
         resultado = self._repo.actualizar(id, datos)
         if resultado:
-            logger.info(f"[PUT] Actualizado exitosamente")
+            logger.info("[PUT] Actualizado exitosamente")
         else:
             logger.warning(f"[PUT] id={id} no encontrado")
         return resultado
@@ -47,10 +49,3 @@ class LoggingRepositoryDecorator(IRestauranteRepository):
         else:
             logger.warning(f"[DELETE] id={id} no encontrado")
         return resultado
-
-    def filtrar(self, categoria: Optional[str] = None, activo: Optional[bool] = None) -> list:
-        logger.info(f"[FILTRO] categoria={categoria} activo={activo}")
-        resultado = self._repo.filtrar(categoria, activo)
-        logger.info(f"[FILTRO] {len(resultado)} resultados")
-        return resultado
-

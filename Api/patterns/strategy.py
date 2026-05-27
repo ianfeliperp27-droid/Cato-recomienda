@@ -41,11 +41,6 @@ class OrdenarPorRating(FiltroStrategy):
         return sorted(restaurantes, key=lambda r: r.promedio_calificacion, reverse=True)
 
 
-class OrdenarPorNombre(FiltroStrategy):
-    def filtrar(self, restaurantes: list) -> list:
-        return sorted(restaurantes, key=lambda r: r.nombre.lower())
-
-
 class BuscadorRestaurantes:
     """
     Contexto del patron Strategy. Aplica una pipeline de estrategias en orden.
@@ -58,4 +53,5 @@ class BuscadorRestaurantes:
         for estrategia in self._estrategias:
             resultado = estrategia.filtrar(resultado)
         return resultado
+
 

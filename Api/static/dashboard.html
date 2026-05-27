@@ -13,7 +13,7 @@
     --rojo: #E63946;
     --rojo-osc: #B82530;
     --amarillo: #FFD60A;
-    --amarillo-osc: #E6BC00;
+    --amarillo-osc: #E6BC00; 
     --azul: #003DA5;
     --negro: #1a1a1a;
     --blanco: #fff;
@@ -620,14 +620,75 @@
         <div class="form-group"><label>Email</label><input type="email" id="loginEmail" placeholder="tu@ucatolica.edu.co"></div>
         <div class="form-group"><label>Contraseña</label><input type="password" id="loginPass" placeholder="••••••••"></div>
         <button class="btn btn-rojo" style="width:100%" onclick="hacerLogin()">¡ENTRAR!</button>
+        <div style="text-align:center;margin-top:12px;">
+          <a href="#" onclick="event.preventDefault();mostrarForgot();" style="color:var(--azul);font-size:0.85rem;font-weight:600;text-decoration:underline;cursor:pointer;">
+            ¿Olvidaste tu contraseña?
+          </a>
+        </div>
         <div id="loginMsg" class="form-msg"></div>
       </div>
       <div id="tab-registro" class="tab-content">
         <div class="form-group"><label>Nombre</label><input type="text" id="regNombre" placeholder="Tu nombre"></div>
         <div class="form-group"><label>Email</label><input type="email" id="regEmail" placeholder="tu@ucatolica.edu.co"></div>
-        <div class="form-group"><label>Contraseña</label><input type="password" id="regPass" placeholder="••••••••"></div>
-        <button class="btn btn-azul" style="width:100%" onclick="hacerRegistro()">CREAR CUENTA</button>
+        <div class="form-group">
+          <label>Contraseña</label>
+          <input type="password" id="regPass" placeholder="••••••••" oninput="validarRegistro()">
+          <small id="regPassHint" style="color:#888;font-size:0.75rem;">Mínimo 6 caracteres</small>
+        </div>
+        <div class="form-group">
+          <label>Confirmar Contraseña</label>
+          <input type="password" id="regPass2" placeholder="••••••••" oninput="validarRegistro()">
+          <small id="regPass2Hint" style="font-size:0.75rem;color:#888;"></small>
+        </div>
+        <button class="btn btn-azul" id="btnRegistro" style="width:100%" onclick="hacerRegistro()" disabled>CREAR CUENTA</button>
         <div id="regMsg" class="form-msg"></div>
+      </div>
+
+      <!-- Sub-vista: solicitar recuperacion -->
+      <div id="tab-forgot" class="tab-content">
+        <h3 style="font-family:'Bangers',sans-serif;color:var(--azul);margin-bottom:6px;letter-spacing:1px;">RECUPERAR ACCESO</h3>
+        <p style="font-size:0.85rem;color:#555;margin-bottom:14px;">
+          Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.
+        </p>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="forgotEmail" placeholder="tu@ucatolica.edu.co">
+        </div>
+        <button class="btn btn-azul" style="width:100%" onclick="enviarForgot()">ENVIAR INSTRUCCIONES</button>
+        <div style="text-align:center;margin-top:10px;">
+          <a href="#" onclick="event.preventDefault();cambiarTab('login');" style="color:var(--azul);font-size:0.8rem;text-decoration:underline;cursor:pointer;">
+            ← Volver al login
+          </a>
+        </div>
+        <div id="forgotMsg" class="form-msg"></div>
+      </div>
+
+      <!-- Sub-vista: reset con token -->
+      <div id="tab-reset" class="tab-content">
+        <h3 style="font-family:'Bangers',sans-serif;color:var(--rojo);margin-bottom:6px;letter-spacing:1px;">NUEVA CONTRASEÑA</h3>
+        <p style="font-size:0.85rem;color:#555;margin-bottom:14px;">
+          Pega el token que recibiste por correo y crea una nueva contraseña.
+        </p>
+        <div class="form-group">
+          <label>Token de recuperación</label>
+          <input type="text" id="resetToken" placeholder="ey...">
+        </div>
+        <div class="form-group">
+          <label>Nueva contraseña</label>
+          <input type="password" id="resetPass" placeholder="••••••••" oninput="validarReset()">
+        </div>
+        <div class="form-group">
+          <label>Confirmar nueva contraseña</label>
+          <input type="password" id="resetPass2" placeholder="••••••••" oninput="validarReset()">
+          <small id="resetPass2Hint" style="font-size:0.75rem;color:#888;"></small>
+        </div>
+        <button class="btn btn-rojo" id="btnReset" style="width:100%" onclick="hacerReset()" disabled>RESTABLECER</button>
+        <div style="text-align:center;margin-top:10px;">
+          <a href="#" onclick="event.preventDefault();cambiarTab('login');" style="color:var(--azul);font-size:0.8rem;text-decoration:underline;cursor:pointer;">
+            ← Volver al login
+          </a>
+        </div>
+        <div id="resetMsg" class="form-msg"></div>
       </div>
     </div>
   </div>
@@ -642,7 +703,22 @@
       <div class="form-group"><label>Descripción</label><textarea id="nuevoDesc" rows="2"></textarea></div>
       <div class="form-group"><label>Dirección</label><input type="text" id="nuevoDir"></div>
       <div class="form-group"><label>Categoría</label><select id="nuevoCat"></select></div>
-      <div class="form-group"><label>Foto (URL)</label><input type="url" id="nuevoFoto" placeholder="https://images.unsplash.com/..."></div>
+
+      <div class="form-group">
+        <label>Foto del lugar</label>
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <button type="button" id="btnFotoUrl" class="btn" style="flex:1;padding:6px;font-size:0.8rem;" onclick="cambiarModoFoto('url')">🔗 URL</button>
+          <button type="button" id="btnFotoUpload" class="btn btn-azul" style="flex:1;padding:6px;font-size:0.8rem;" onclick="cambiarModoFoto('upload')">📤 Subir archivo</button>
+        </div>
+        <div id="modoFotoUrl" style="display:none;">
+          <input type="url" id="nuevoFoto" placeholder="https://images.unsplash.com/...">
+        </div>
+        <div id="modoFotoUpload">
+          <input type="file" id="nuevoFotoArchivo" accept=".jpg,.jpeg,.png,.webp">
+          <small style="color:#888;font-size:0.75rem;">JPG / PNG / WEBP · máx 5 MB</small>
+        </div>
+      </div>
+
       <div class="form-group"><label>Horario</label><input type="text" id="nuevoHorario" placeholder="Lun-Vie 11am-9pm"></div>
       <div class="form-group"><label>Precio promedio</label><input type="text" id="nuevoPrecio" placeholder="$15.000 - $30.000"></div>
       <button class="btn btn-azul" style="width:100%" onclick="guardarRestaurante()">GUARDAR</button>
@@ -763,6 +839,7 @@
       return;
     }
     var html = '';
+    var esAdmin = (USUARIO && USUARIO.rol === 'admin');
     for (var i = 0; i < lista.length; i++) {
       var r = lista[i];
       var nombreCat = nombreCategoria(r.categoria_id);
@@ -773,6 +850,14 @@
       var sticker = STICKERS[i % STICKERS.length];
       html += '<div class="card" onclick="abrirDetalle(' + r.id + ')">';
       html +=   '<div class="sticker">' + sticker + '</div>';
+      if (esAdmin) {
+        html += '<button class="admin-restringido-control" '
+             +    'onclick="event.stopPropagation();ejecutarBorradoAdmin(' + r.id + ')" '
+             +    'title="Eliminar (solo admin)" '
+             +    'style="position:absolute;top:8px;right:8px;z-index:5;background:#E63946;color:#fff;border:2px solid #fff;border-radius:50%;width:32px;height:32px;font-weight:bold;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.25);">'
+             +    '🗑'
+             + '</button>';
+      }
       html +=   '<div class="card-img-wrap">';
       html +=     '<img src="' + escapar(foto) + '" alt="' + escapar(r.nombre) + '" loading="lazy">';
       html +=     '<span class="badge-estado ' + estadoClass + '">' + estado + '</span>';
@@ -926,16 +1011,83 @@
   function abrirModal(id)         { document.getElementById(id).classList.add('activo'); }
   function cerrarModal(id)        { document.getElementById(id).classList.remove('activo'); }
   function cerrarSiOverlay(ev,id) { if (ev.target.id === id) cerrarModal(id); }
-  function abrirLogin()           { abrirModal('modalLogin'); }
+  function abrirLogin()           { cambiarTab('login'); abrirModal('modalLogin'); }
   function abrirAgregar()         { abrirModal('modalAgregar'); }
 
   function cambiarTab(t) {
     var tabs = document.querySelectorAll('.tab');
     for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('activa');
-    document.querySelector('.tab[data-tab="' + t + '"]').classList.add('activa');
+    var tabBtn = document.querySelector('.tab[data-tab="' + t + '"]');
+    if (tabBtn) tabBtn.classList.add('activa');
     var contents = document.querySelectorAll('.tab-content');
     for (var j = 0; j < contents.length; j++) contents[j].classList.remove('activo');
-    document.getElementById('tab-' + t).classList.add('activo');
+    var target = document.getElementById('tab-' + t);
+    if (target) target.classList.add('activo');
+  }
+
+  function mostrarForgot() {
+    // Limpia campos y oculta tabs visibles, muestra sub-vista forgot
+    document.getElementById('forgotEmail').value = '';
+    var msg = document.getElementById('forgotMsg'); msg.textContent = ''; msg.className = 'form-msg';
+    cambiarTab('forgot');
+  }
+
+  function mostrarReset(tokenPrefill) {
+    document.getElementById('resetToken').value = tokenPrefill || '';
+    document.getElementById('resetPass').value  = '';
+    document.getElementById('resetPass2').value = '';
+    var msg = document.getElementById('resetMsg'); msg.textContent = ''; msg.className = 'form-msg';
+    document.getElementById('btnReset').disabled = true;
+    cambiarTab('reset');
+    abrirModal('modalLogin');
+  }
+
+  function validarRegistro() {
+    var p1 = document.getElementById('regPass').value;
+    var p2 = document.getElementById('regPass2').value;
+    var hint = document.getElementById('regPass2Hint');
+    var btn  = document.getElementById('btnRegistro');
+    var pHint = document.getElementById('regPassHint');
+
+    if (p1.length > 0 && p1.length < 6) {
+      pHint.textContent = 'Mínimo 6 caracteres';
+      pHint.style.color = '#B82530';
+    } else {
+      pHint.textContent = 'Mínimo 6 caracteres';
+      pHint.style.color = '#888';
+    }
+
+    if (p2.length === 0) {
+      hint.textContent = '';
+      btn.disabled = true;
+      return;
+    }
+    if (p1 === p2 && p1.length >= 6) {
+      hint.textContent = '✓ Las contraseñas coinciden';
+      hint.style.color = '#2E7D32';
+      btn.disabled = false;
+    } else {
+      hint.textContent = '✗ Las contraseñas no coinciden';
+      hint.style.color = '#B82530';
+      btn.disabled = true;
+    }
+  }
+
+  function validarReset() {
+    var p1 = document.getElementById('resetPass').value;
+    var p2 = document.getElementById('resetPass2').value;
+    var hint = document.getElementById('resetPass2Hint');
+    var btn  = document.getElementById('btnReset');
+    if (p2.length === 0) { hint.textContent=''; btn.disabled=true; return; }
+    if (p1 === p2 && p1.length >= 6) {
+      hint.textContent = '✓ Coinciden';
+      hint.style.color = '#2E7D32';
+      btn.disabled = false;
+    } else {
+      hint.textContent = p1.length < 6 ? 'Mínimo 6 caracteres' : '✗ No coinciden';
+      hint.style.color = '#B82530';
+      btn.disabled = true;
+    }
   }
 
   function hacerLogin() {
@@ -962,8 +1114,16 @@
           cerrarModal('modalLogin');
         } else {
           msg.className = 'form-msg error';
-          msg.textContent = res.data.detail || 'Error';
+          if (res.data && res.data.detail) {
+            msg.textContent = res.data.detail;
+          } else {
+            msg.textContent = 'Credenciales incorrectas. Inténtalo de nuevo.';
+          }
         }
+      })
+      .catch(function() {
+        msg.className = 'form-msg error';
+        msg.textContent = 'Error de conexión con el servidor.';
       });
   }
 
@@ -971,10 +1131,21 @@
     var nombre = document.getElementById('regNombre').value.trim();
     var email = document.getElementById('regEmail').value.trim();
     var pass = document.getElementById('regPass').value;
+    var pass2 = document.getElementById('regPass2').value;
     var msg = document.getElementById('regMsg');
-    if (!nombre || !email || !pass) {
+    if (!nombre || !email || !pass || !pass2) {
       msg.className = 'form-msg error';
       msg.textContent = 'Completa todos los campos';
+      return;
+    }
+    if (pass !== pass2) {
+      msg.className = 'form-msg error';
+      msg.textContent = 'Las contraseñas no coinciden';
+      return;
+    }
+    if (pass.length < 6) {
+      msg.className = 'form-msg error';
+      msg.textContent = 'La contraseña debe tener al menos 6 caracteres';
       return;
     }
     fetch('/usuarios/registro', {
@@ -994,6 +1165,82 @@
           msg.className = 'form-msg error';
           msg.textContent = res.data.detail || 'Error al registrar';
         }
+      })
+      .catch(function() {
+        msg.className = 'form-msg error';
+        msg.textContent = 'Error de conexión. Intenta de nuevo.';
+      });
+  }
+
+  function enviarForgot() {
+    var email = document.getElementById('forgotEmail').value.trim();
+    var msg = document.getElementById('forgotMsg');
+    if (!email) {
+      msg.className = 'form-msg error';
+      msg.textContent = 'Ingresa tu correo';
+      return;
+    }
+    fetch('/usuarios/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email })
+    }).then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+      .then(function(res) {
+        if (res.ok) {
+          msg.className = 'form-msg success';
+          var texto = res.data.mensaje || 'Si el correo está registrado, recibirás un enlace de recuperación.';
+          if (res.data.debug_token) {
+            // Modo desarrollo: muestra el token directamente para poder probar.
+            texto += '\n[Modo desarrollo] Token: ' + res.data.debug_token;
+            // Auto-rellenar la siguiente vista
+            setTimeout(function(){ mostrarReset(res.data.debug_token); }, 1500);
+          }
+          msg.style.whiteSpace = 'pre-wrap';
+          msg.textContent = texto;
+        } else {
+          msg.className = 'form-msg error';
+          msg.textContent = (res.data && res.data.detail) || 'No se pudo procesar la solicitud';
+        }
+      })
+      .catch(function() {
+        msg.className = 'form-msg error';
+        msg.textContent = 'Error de conexión.';
+      });
+  }
+
+  function hacerReset() {
+    var token = document.getElementById('resetToken').value.trim();
+    var pass  = document.getElementById('resetPass').value;
+    var pass2 = document.getElementById('resetPass2').value;
+    var msg   = document.getElementById('resetMsg');
+    if (!token || !pass || !pass2) {
+      msg.className = 'form-msg error';
+      msg.textContent = 'Completa todos los campos';
+      return;
+    }
+    if (pass !== pass2) {
+      msg.className = 'form-msg error';
+      msg.textContent = 'Las contraseñas no coinciden';
+      return;
+    }
+    fetch('/usuarios/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: token, nueva_password: pass })
+    }).then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+      .then(function(res) {
+        if (res.ok) {
+          msg.className = 'form-msg success';
+          msg.textContent = '¡Listo! Ya puedes iniciar sesión con tu nueva contraseña.';
+          setTimeout(function(){ cambiarTab('login'); }, 1800);
+        } else {
+          msg.className = 'form-msg error';
+          msg.textContent = (res.data && res.data.detail) || 'Token inválido o expirado';
+        }
+      })
+      .catch(function() {
+        msg.className = 'form-msg error';
+        msg.textContent = 'Error de conexión.';
       });
   }
 
@@ -1005,29 +1252,79 @@
     refrescarUI();
   }
 
+  function cambiarModoFoto(modo) {
+    var btnUrl    = document.getElementById('btnFotoUrl');
+    var btnUpload = document.getElementById('btnFotoUpload');
+    var divUrl    = document.getElementById('modoFotoUrl');
+    var divUpload = document.getElementById('modoFotoUpload');
+    if (modo === 'url') {
+      btnUrl.classList.add('btn-azul');     btnUpload.classList.remove('btn-azul');
+      divUrl.style.display = 'block';       divUpload.style.display = 'none';
+    } else {
+      btnUpload.classList.add('btn-azul');  btnUrl.classList.remove('btn-azul');
+      divUpload.style.display = 'block';    divUrl.style.display = 'none';
+    }
+  }
+
   function guardarRestaurante() {
     var msg = document.getElementById('agregarMsg');
-    var datos = {
-      nombre: document.getElementById('nuevoNombre').value.trim(),
-      descripcion: document.getElementById('nuevoDesc').value.trim() || null,
-      direccion: document.getElementById('nuevoDir').value.trim() || null,
-      categoria_id: parseInt(document.getElementById('nuevoCat').value),
-      foto: document.getElementById('nuevoFoto').value.trim() || null,
-      horario: document.getElementById('nuevoHorario').value.trim() || null,
-      precio_prom: document.getElementById('nuevoPrecio').value.trim() || null,
-      ciudad: 'Bogotá',
-      activo: true
-    };
-    if (!datos.nombre) {
+    var nombre      = document.getElementById('nuevoNombre').value.trim();
+    var descripcion = document.getElementById('nuevoDesc').value.trim();
+    var direccion   = document.getElementById('nuevoDir').value.trim();
+    var categoriaId = parseInt(document.getElementById('nuevoCat').value);
+    var horario     = document.getElementById('nuevoHorario').value.trim();
+    var precio      = document.getElementById('nuevoPrecio').value.trim();
+
+    if (!nombre) {
       msg.className = 'form-msg error';
       msg.textContent = 'El nombre es obligatorio';
       return;
     }
-    fetch('/restaurantes/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
-      body: JSON.stringify(datos)
-    }).then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+
+    var archivo = document.getElementById('nuevoFotoArchivo').files[0];
+    var modoUploadActivo = document.getElementById('modoFotoUpload').style.display !== 'none';
+
+    var promesa;
+    if (modoUploadActivo && archivo) {
+      // Multipart al endpoint /restaurantes/upload
+      var fd = new FormData();
+      fd.append('nombre', nombre);
+      if (descripcion) fd.append('descripcion', descripcion);
+      if (direccion)   fd.append('direccion', direccion);
+      fd.append('ciudad', 'Bogotá');
+      if (!isNaN(categoriaId)) fd.append('categoria_id', categoriaId);
+      if (horario) fd.append('horario', horario);
+      if (precio)  fd.append('precio_prom', precio);
+      fd.append('activo', 'true');
+      fd.append('imagen', archivo);
+
+      promesa = fetch('/restaurantes/upload', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + TOKEN },  // NO Content-Type, fetch lo pone con boundary
+        body: fd
+      });
+    } else {
+      // JSON al endpoint /restaurantes/ con URL externa (o sin foto)
+      var datos = {
+        nombre: nombre,
+        descripcion: descripcion || null,
+        direccion: direccion || null,
+        ciudad: 'Bogotá',
+        categoria_id: isNaN(categoriaId) ? null : categoriaId,
+        foto: document.getElementById('nuevoFoto').value.trim() || null,
+        horario: horario || null,
+        precio_prom: precio || null,
+        activo: true
+      };
+      promesa = fetch('/restaurantes/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+        body: JSON.stringify(datos)
+      });
+    }
+
+    promesa
+      .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
       .then(function(res) {
         if (res.ok) {
           msg.className = 'form-msg ok';
@@ -1036,10 +1333,36 @@
           setTimeout(function() { cerrarModal('modalAgregar'); msg.textContent = ''; }, 800);
         } else {
           msg.className = 'form-msg error';
-          msg.textContent = res.data.detail || 'Error';
+          msg.textContent = (res.data && res.data.detail) || 'Error al crear';
         }
+      })
+      .catch(function() {
+        msg.className = 'form-msg error';
+        msg.textContent = 'Error de conexión.';
       });
   }
+
+  // ---------- Operacion admin: borrar restaurante ----------
+  function ejecutarBorradoAdmin(restauranteId) {
+    if (!confirm('¿Confirmas eliminar este restaurante? También se borrarán sus reseñas asociadas.')) return;
+    fetch('/restaurantes/' + restauranteId, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + TOKEN }
+    }).then(function(r) { return r.json().then(function(d) { return { ok: r.ok, status: r.status, data: d }; }); })
+      .then(function(res) {
+        if (res.ok) {
+          cargarRestaurantes();
+        } else if (res.status === 403) {
+          alert('No tienes privilegios de administrador para esta acción.');
+        } else if (res.status === 401) {
+          alert('Sesión expirada. Inicia sesión de nuevo.');
+        } else {
+          alert((res.data && res.data.detail) || 'No se pudo eliminar.');
+        }
+      })
+      .catch(function() { alert('Error de conexión con el servidor.'); });
+  }
+
 </script>
 
 </body>

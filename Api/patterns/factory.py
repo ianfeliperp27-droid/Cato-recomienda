@@ -22,4 +22,3 @@ def get_database_factory() -> DatabaseFactory:
     if entorno == "produccion":
         return PostgreSQLFactory()
     return SQLiteFactory()
-

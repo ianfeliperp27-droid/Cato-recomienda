@@ -25,14 +25,29 @@ class Restaurante(SQLModel, table=True):
     precio_prom:           Optional[str] = None
 
     categoria_rel: Optional[Categoria] = Relationship(back_populates="restaurantes")
-    resenas:       List["Resena"] = Relationship(back_populates="restaurante")
-    multimedia:    List["Multimedia"] = Relationship(back_populates="restaurante")
+
+    # cascade_delete=True hace que SQLModel borre la relacion en memoria.
+    # Para que SQLite tambien lo aplique a nivel BD, las FK de Resena y
+    # Multimedia se declaran con sa_relationship_kwargs en su lado y con
+    # ON DELETE CASCADE via foreign_key + sa_column. Aqui activamos el
+    # lado Python; en database.py habilitamos foreign_keys=ON en SQLite.
+    resenas: List["Resena"] = Relationship(
+        back_populates="restaurante",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
+    )
+    multimedia: List["Multimedia"] = Relationship(
+        back_populates="restaurante",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
+    )
 
 
 class Resena(SQLModel, table=True):
     id:             Optional[int] = Field(default=None, primary_key=True)
     usuario_id:     int = Field(foreign_key="usuario.id")
-    restaurante_id: int = Field(foreign_key="restaurante.id")
+    restaurante_id: int = Field(
+        foreign_key="restaurante.id",
+        sa_column_kwargs={"nullable": False},
+    )
     puntuacion:     int
     comentario:     Optional[str] = None
     fecha:          datetime = Field(default_factory=datetime.utcnow)
@@ -50,7 +65,8 @@ class Multimedia(SQLModel, table=True):
     restaurante: Optional[Restaurante] = Relationship(back_populates="multimedia")
 
 
-# DTOs
+# ---------------- DTOs ----------------
+
 class RestauranteCreate(SQLModel):
     nombre:       str
     descripcion:  Optional[str] = None
