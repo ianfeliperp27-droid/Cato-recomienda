@@ -363,16 +363,3 @@ def get_resumen():
 
 app.include_router(router_est)
 
-
-@app.get("/admin-setup-temporal")
-def setup_admin():
-    from sqlmodel import Session, select
-    from models.usuario import Usuario
-    with Session(engine) as session:
-        u = session.exec(select(Usuario).where(Usuario.email == "admin@cato.com")).first()
-        if u:
-            u.rol = "admin"
-            session.add(u)
-            session.commit()
-            return {"ok": True, "mensaje": "Rol actualizado a admin"}
-        return {"ok": False, "mensaje": "Usuario no encontrado"}
