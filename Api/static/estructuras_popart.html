@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CATO-RECOMIENDA · Estructuras Pop Art</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@700&family=Oswald:wght@700&display=swap');
+
+:root {
+  --amarillo: #FFE000;
+  --cian:     #00D4FF;
+  --fucsia:   #FF2D78;
+  --rojo:     #FF3B1E;
+  --verde:    #39FF14;
+  --negro:    #0A0A0A;
+  --blanco:   #FFFEF5;
+  --azul-rey: #1A1AFF;
+  --naranja:  #FF8C00;
+  --morado:   #C800FF;
+  --borde:    4px solid #0A0A0A;
+  --sombra:   6px 6px 0 #0A0A0A;
+  --sombra-lg:10px 10px 0 #0A0A0A;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: #FFE000;
+  background-image: radial-gradient(circle, #0A0A0A 1.2px, transparent 1.2px);
+  background-size: 16px 16px;
+  font-family: 'Comic Neue', 'Arial Black', sans-serif;
+  color: #0A0A0A;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #FFE000; }
+::-webkit-scrollbar-thumb { background: #0A0A0A; border: 2px solid #FFE000; }
+
+header {
+  background: #FF3B1E;
+  border-bottom: 4px solid #0A0A0A;
+  padding: 12px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 6px 0 #0A0A0A;
+}
+.header-title {
+  font-family: 'Bangers', cursive;
+  font-size: clamp(1.6rem, 4vw, 2.8rem);
+  color: #FFFEF5;
+  letter-spacing: 2px;
+  text-shadow: 3px 3px 0 #0A0A0A;
+}
+.header-title span { color: #FFE000; }
+.header-badge {
+  background: #FFE000;
+  border: 4px solid #0A0A0A;
+  padding: 6px 14px;
+  font-family: 'Bangers', cursive;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  box-shadow: 6px 6px 0 #0A0A0A;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-bar {
+  background: #0A0A0A;
+  color: #39FF14;
+  font-family: 'Courier New', monospace;
+  font-size: .75rem;
+  padding: 6px 32px;
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.status-bar span { opacity: .7; }
+.status-bar b { color: #FFE000; }
+#status-msg { margin-left: auto; color: #00D4FF; }
+
+.container { max-width: 1400px; margin: 0 auto; padding: 32px 24px; }
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 28px;
+  margin-bottom: 40px;
+}
+
+.card {
+  border: 4px solid #0A0A0A;
+  box-shadow: 10px 10px 0 #0A0A0A;
+  background: #FFFEF5;
+  overflow: hidden;
+  transition: transform .1s;
+  position: relative;
+}
+.card:hover { transform: translate(-3px, -3px); box-shadow: 13px 13px 0 #0A0A0A; }
+
+.card-header {
+  padding: 14px 20px 10px;
+  border-bottom: 4px solid #0A0A0A;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.card-header h2 {
+  font-family: 'Bangers', cursive;
+  font-size: 1.7rem;
+  letter-spacing: 1.5px;
+  color: #0A0A0A;
+}
+.card-header h2 .icon { font-size: 1.5rem; margin-right: 6px; }
+.card-body { padding: 18px 20px; }
+
+.card-dict  .card-header { background: #00D4FF; }
+.card-pila  .card-header { background: #FF2D78; }
+.card-pila  .card-header h2 { color: #FFFEF5; }
+.card-lista .card-header { background: #39FF14; }
+.card-heap  .card-header { background: #C800FF; }
+.card-heap  .card-header h2 { color: #FFFEF5; }
+
+.tag {
+  font-family: 'Oswald', sans-serif;
+  font-size: .7rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border: 2px solid #0A0A0A;
+  background: #0A0A0A;
+  color: #FFE000;
+  letter-spacing: 1px;
+}
+
+.btn {
+  font-family: 'Bangers', cursive;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  padding: 8px 18px;
+  border: 4px solid #0A0A0A;
+  cursor: pointer;
+  box-shadow: 6px 6px 0 #0A0A0A;
+  transition: transform .08s, box-shadow .08s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn:hover  { transform: translate(-2px,-2px); box-shadow: 8px 8px 0 #0A0A0A; }
+.btn:active { transform: translate(4px,4px);   box-shadow: 2px 2px 0 #0A0A0A; }
+.btn-cian    { background: #00D4FF; color: #0A0A0A; }
+.btn-fucsia  { background: #FF2D78; color: #FFFEF5; }
+.btn-verde   { background: #39FF14; color: #0A0A0A; }
+.btn-rojo    { background: #FF3B1E; color: #FFFEF5; }
+.btn-morado  { background: #C800FF; color: #FFFEF5; }
+.btn-naranja { background: #FF8C00; color: #0A0A0A; }
+.btn-amarillo{ background: #FFE000; color: #0A0A0A; }
+
+.controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 16px;
+}
+input, select {
+  border: 4px solid #0A0A0A;
+  padding: 7px 12px;
+  font-family: 'Comic Neue', sans-serif;
+  font-size: .85rem;
+  font-weight: 700;
+  background: #FFFEF5;
+  box-shadow: 3px 3px 0 #0A0A0A;
+  outline: none;
+}
+input:focus, select:focus { box-shadow: 5px 5px 0 #0A0A0A; }
+
+.stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.stat {
+  border: 4px solid #0A0A0A;
+  padding: 8px 14px;
+  min-width: 90px;
+  background: #FFE000;
+  box-shadow: 4px 4px 0 #0A0A0A;
+}
+.stat .val { font-family: 'Bangers', cursive; font-size: 1.6rem; }
+.stat .lbl { font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+
+#dict-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 10px;
+  max-height: 380px;
+  overflow-y: auto;
+}
+.dict-card {
+  border: 4px solid #0A0A0A;
+  padding: 10px;
+  background: #00D4FF;
+  box-shadow: 4px 4px 0 #0A0A0A;
+  font-size: .78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .08s;
+}
+.dict-card:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 #0A0A0A; }
+.dict-card .dict-id   { font-family: 'Bangers', cursive; font-size: 1.1rem; }
+.dict-card .dict-name { font-size: .85rem; margin: 2px 0; }
+.dict-card .dict-cal  {
+  display: inline-block;
+  background: #0A0A0A;
+  color: #FFE000;
+  padding: 1px 6px;
+  font-family: 'Bangers', cursive;
+  font-size: .9rem;
+  margin-top: 4px;
+}
+.dict-card .dict-cat {
+  background: #FF2D78;
+  color: #FFFEF5;
+  display: inline-block;
+  padding: 1px 5px;
+  font-size: .68rem;
+  margin-top: 3px;
+  border: 2px solid #0A0A0A;
+}
+
+#pila-visual {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 340px;
+  overflow-y: auto;
+  padding: 4px;
+}
+.pila-item {
+  border: 4px solid #0A0A0A;
+  padding: 8px 12px;
+  box-shadow: 4px 4px 0 #0A0A0A;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: slideIn .25s ease-out;
+  font-size: .78rem;
+  font-weight: 700;
+}
+@keyframes slideIn {
+  from { transform: translateX(-20px); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+.pila-item.tope  { background: #FF2D78; color: #FFFEF5; }
+.pila-item.medio { background: #FF8C00; }
+.pila-item.fondo { background: #FFFEF5; }
+.pila-idx {
+  font-family: 'Bangers', cursive;
+  font-size: 1.2rem;
+  min-width: 28px;
+  text-align: center;
+  background: #0A0A0A;
+  color: #FFE000;
+  padding: 0 4px;
+}
+.pila-accion { flex: 1; }
+.pila-ts { font-size: .65rem; opacity: .7; }
+.pila-tope-badge {
+  background: #0A0A0A;
+  color: #39FF14;
+  font-family: 'Bangers', cursive;
+  font-size: .8rem;
+  padding: 1px 6px;
+  letter-spacing: 1px;
+}
+
+#lista-visual { overflow-x: auto; padding-bottom: 8px; }
+.lista-cat-section { margin-bottom: 20px; }
+.lista-cat-title {
+  font-family: 'Bangers', cursive;
+  font-size: 1.2rem;
+  letter-spacing: 1px;
+  display: inline-block;
+  background: #0A0A0A;
+  color: #39FF14;
+  padding: 4px 12px;
+  margin-bottom: 10px;
+  border: 4px solid #0A0A0A;
+  box-shadow: 4px 4px 0 #0A0A0A;
+}
+.lista-nodos {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.lista-nodo {
+  border: 4px solid #0A0A0A;
+  padding: 8px 12px;
+  background: #39FF14;
+  box-shadow: 4px 4px 0 #0A0A0A;
+  font-size: .75rem;
+  font-weight: 700;
+  min-width: 130px;
+}
+.lista-nodo:nth-child(3n+2) { background: #00D4FF; }
+.lista-nodo:nth-child(3n+3) { background: #FFE000; }
+.lista-nodo .nodo-nombre { font-size: .85rem; font-weight: 700; }
+.lista-nodo .nodo-cal { font-family: 'Bangers', cursive; font-size: 1.1rem; }
+.lista-flecha { font-family: 'Bangers', cursive; font-size: 1.4rem; padding: 0 2px; user-select: none; }
+.lista-null {
+  background: #0A0A0A;
+  color: #39FF14;
+  font-family: 'Bangers', cursive;
+  font-size: .9rem;
+  padding: 4px 10px;
+  border: 2px solid #0A0A0A;
+  letter-spacing: 1px;
+}
+
+#heap-canvas {
+  border: 4px solid #0A0A0A;
+  box-shadow: 10px 10px 0 #0A0A0A;
+  background: #0A0A0A;
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+}
+#heap-array {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  padding: 10px;
+  border: 4px solid #0A0A0A;
+  background: #FFFEF5;
+  box-shadow: 6px 6px 0 #0A0A0A;
+}
+.heap-slot {
+  border: 4px solid #0A0A0A;
+  padding: 6px 10px;
+  min-width: 80px;
+  text-align: center;
+  font-size: .72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .08s;
+}
+.heap-slot:hover   { transform: translate(-2px,-2px); }
+.heap-slot.raiz    { background: #FF3B1E; color: #FFFEF5; box-shadow: 4px 4px 0 #0A0A0A; }
+.heap-slot.nivel1  { background: #FF8C00; box-shadow: 4px 4px 0 #0A0A0A; }
+.heap-slot.nivel2  { background: #FFE000; box-shadow: 4px 4px 0 #0A0A0A; }
+.heap-slot.nivel3  { background: #39FF14; box-shadow: 4px 4px 0 #0A0A0A; }
+.heap-slot.nivel4  { background: #00D4FF; box-shadow: 4px 4px 0 #0A0A0A; }
+.heap-idx { font-family: 'Bangers', cursive; font-size: 1rem; }
+.heap-cal { font-family: 'Bangers', cursive; font-size: .9rem; color: #1A1AFF; }
+
+.tooltip {
+  position: fixed;
+  background: #0A0A0A;
+  color: #FFE000;
+  border: 4px solid #0A0A0A;
+  padding: 8px 14px;
+  font-size: .78rem;
+  font-weight: 700;
+  pointer-events: none;
+  z-index: 999;
+  box-shadow: 6px 6px 0 #0A0A0A;
+  max-width: 260px;
+  line-height: 1.5;
+  display: none;
+}
+
+.teoria-panel {
+  border: 4px solid #0A0A0A;
+  background: #0A0A0A;
+  color: #39FF14;
+  padding: 16px 20px;
+  font-family: 'Courier New', monospace;
+  font-size: .78rem;
+  line-height: 1.7;
+  box-shadow: 10px 10px 0 #0A0A0A;
+  margin-top: 8px;
+}
+.teoria-panel b         { color: #FFE000; }
+.teoria-panel .hl       { color: #FF2D78; font-weight: 700; }
+
+.hero-section {
+  border: 4px solid #0A0A0A;
+  background: #1A1AFF;
+  color: #FFFEF5;
+  padding: 28px 32px;
+  box-shadow: 10px 10px 0 #0A0A0A;
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.hero-section h3 {
+  font-family: 'Bangers', cursive;
+  font-size: 2.2rem;
+  letter-spacing: 2px;
+  text-shadow: 3px 3px 0 #0A0A0A;
+  color: #FFE000;
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  flex: 1;
+}
+.hero-item {
+  border: 3px solid #FFFEF5;
+  padding: 10px 14px;
+  background: rgba(255,255,255,.08);
+}
+.hero-item .h-key { font-family: 'Bangers', cursive; font-size: 1.1rem; color: #00D4FF; }
+.hero-item .h-val { font-size: .8rem; opacity: .85; margin-top: 2px; }
+
+.loader {
+  text-align: center;
+  padding: 30px;
+  font-family: 'Bangers', cursive;
+  font-size: 1.4rem;
+  letter-spacing: 2px;
+  opacity: .5;
+}
+
+@media(max-width:700px) {
+  .grid-4      { grid-template-columns: 1fr; }
+  header       { flex-direction: column; gap: 8px; padding: 12px; }
+  .hero-grid   { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="tooltip" id="tooltip"></div>
+
+<header>
+  <div class="header-title">
+    🍽 <span>CATO</span>-RECOMIENDA
+    <span style="font-size:1rem;font-family:'Oswald',sans-serif;margin-left:10px">ESTRUCTURAS DE DATOS</span>
+  </div>
+  <div class="header-badge"><span>⚡</span> POP ART DASHBOARD</div>
+</header>
+
+<div class="status-bar">
+  <span>DICT: <b id="s-dict">—</b></span>
+  <span>PILA: <b id="s-pila">—</b></span>
+  <span>LISTA: <b id="s-lista">—</b></span>
+  <span>HEAP: <b id="s-heap">—</b></span>
+  <span id="status-msg">Cargando...</span>
+</div>
+
+<div class="container">
+
+  <div class="controls" style="margin-bottom:20px">
+    <button class="btn btn-amarillo" onclick="cargarTodo()">🔄 ACTUALIZAR TODO</button>
+    <button class="btn btn-rojo"     onclick="toggleAuto()">⏱ AUTO-REFRESH: <span id="auto-label">OFF</span></button>
+    <select id="auto-interval">
+      <option value="5000">5 seg</option>
+      <option value="10000">10 seg</option>
+      <option value="30000">30 seg</option>
+    </select>
+    <input id="buscar-id" type="number" placeholder="Buscar ID..." style="width:130px">
+    <button class="btn btn-cian" onclick="buscarEnDiccionario()">🔍 BUSCAR EN DICT</button>
+  </div>
+
+  <div class="grid-4">
+
+    <!-- DICCIONARIO -->
+    <div class="card card-dict">
+      <div class="card-header">
+        <h2><span class="icon">📚</span>DICCIONARIO</h2>
+        <span class="tag">O(1)</span>
+      </div>
+      <div class="card-body">
+        <div class="stats" id="dict-stats"></div>
+        <div class="controls">
+          <button class="btn btn-cian"   onclick="cargarDiccionario('restaurantes')">🍽 Restaurantes</button>
+          <button class="btn btn-fucsia" onclick="cargarDiccionario('usuarios')">👤 Usuarios</button>
+        </div>
+        <div id="dict-grid"><div class="loader">POW! Cargando...</div></div>
+        <div class="teoria-panel" style="margin-top:12px">
+          <b>HASH MAP</b> · Python <span class="hl">dict</span><br>
+          Clave → Valor en <b>O(1)</b> promedio.<br>
+          Open addressing · factor de carga &lt; 2/3.<br>
+          Sin colisiones visibles para el programador.
+        </div>
+      </div>
+    </div>
+
+    <!-- PILA -->
+    <div class="card card-pila">
+      <div class="card-header">
+        <h2><span class="icon">📦</span>PILA LIFO</h2>
+        <span class="tag">PUSH/POP O(1)</span>
+      </div>
+      <div class="card-body">
+        <div class="stats" id="pila-stats"></div>
+        <div class="controls">
+          <button class="btn btn-fucsia"  onclick="cargarPila()">🔄 Historial</button>
+          <button class="btn btn-rojo"    onclick="desapilar()">⬆ POP</button>
+          <input  id="pila-accion" placeholder="Acción manual..." style="flex:1">
+          <button class="btn btn-naranja" onclick="pushManual()">⬇ PUSH</button>
+        </div>
+        <div id="pila-visual"><div class="loader">ZAP! Cargando...</div></div>
+        <div class="teoria-panel" style="margin-top:12px">
+          <b>STACK LIFO</b> · Lista Python<br>
+          <span class="hl">append</span> = push O(1) amortizado<br>
+          <span class="hl">pop()</span>  = pop O(1)<br>
+          Tope = acción más reciente.
+        </div>
+      </div>
+    </div>
+
+    <!-- LISTA -->
+    <div class="card card-lista">
+      <div class="card-header">
+        <h2><span class="icon">🔗</span>LISTA ENLAZADA</h2>
+        <span class="tag">INSERT O(1) · SEARCH O(n)</span>
+      </div>
+      <div class="card-body">
+        <div class="stats" id="lista-stats"></div>
+        <div class="controls">
+          <select id="lista-cat"><option value="">— Todas —</option></select>
+          <button class="btn btn-verde"   onclick="cargarLista()">🔗 Cargar</button>
+          <button class="btn btn-naranja" onclick="cargarListaOrdenada()">★ Ordenada</button>
+        </div>
+        <div id="lista-visual"><div class="loader">BAM! Cargando...</div></div>
+        <div class="teoria-panel" style="margin-top:12px">
+          <b>LINKED LIST</b> · Nodo → Nodo → NULL<br>
+          Insertar al frente <span class="hl">O(1)</span><br>
+          Buscar / Recorrer  <span class="hl">O(n)</span><br>
+          Sin índice directo — punteros entre nodos.
+        </div>
+      </div>
+    </div>
+
+    <!-- HEAP -->
+    <div class="card card-heap">
+      <div class="card-header">
+        <h2><span class="icon">🏔</span>MAX-HEAP</h2>
+        <span class="tag">PUSH/POP O(log n)</span>
+      </div>
+      <div class="card-body">
+        <div class="stats" id="heap-stats"></div>
+        <div class="controls">
+          <input id="heap-k" type="number" value="5" min="1" max="20" style="width:70px">
+          <button class="btn btn-morado"  onclick="cargarHeap()">🏆 Top-K</button>
+          <button class="btn btn-naranja" onclick="dibujarHeap()">🌳 Árbol</button>
+        </div>
+        <canvas id="heap-canvas" width="460" height="280"></canvas>
+        <div id="heap-array"></div>
+        <div class="teoria-panel" style="margin-top:12px">
+          <b>BINARY MAX-HEAP</b> · heapq negado<br>
+          Padre i → hijos <span class="hl">2i+1, 2i+2</span><br>
+          Raíz = máximo · push/pop <span class="hl">O(log n)</span><br>
+          Python heapq = min-heap → negamos valores.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="hero-section">
+    <div>
+      <h3>🎯 RESUMEN<br>ESTRUCTURAS</h3>
+      <p style="font-size:.85rem;margin-top:8px;opacity:.8">Estado en tiempo real<br>de las 4 estructuras en RAM</p>
+    </div>
+    <div class="hero-grid" id="hero-grid">
+      <div class="hero-item"><div class="h-key">DICT</div><div class="h-val">—</div></div>
+      <div class="hero-item"><div class="h-key">PILA</div><div class="h-val">—</div></div>
+      <div class="hero-item"><div class="h-key">LISTA</div><div class="h-val">—</div></div>
+      <div class="hero-item"><div class="h-key">HEAP</div><div class="h-val">—</div></div>
+    </div>
+    <button class="btn btn-amarillo" onclick="cargarResumen()" style="margin-left:auto">🔄 SYNC</button>
+  </div>
+
+</div>
+
+<script>
+const API = window.location.origin;
+let autoTimer = null;
+let heapData  = [];
+
+/* ── helpers ── */
+async function apiFetch(path) {
+  try {
+    const r = await fetch(API + path);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return await r.json();
+  } catch (e) {
+    setStatus('Error: ' + e.message);
+    return null;
+  }
+}
+
+async function apiPost(path) {
+  try {
+    const r = await fetch(API + path, { method: 'POST' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return await r.json();
+  } catch (e) {
+    setStatus('Error: ' + e.message);
+    return null;
+  }
+}
+
+function setStatus(msg) {
+  document.getElementById('status-msg').textContent = msg;
+}
+
+/* ── tooltip ── */
+const TT = document.getElementById('tooltip');
+document.addEventListener('mousemove', function(e) {
+  TT.style.left = (e.clientX + 14) + 'px';
+  TT.style.top  = (e.clientY - 10) + 'px';
+});
+
+function showTip(el, lines) {
+  TT.innerHTML  = lines;
+  TT.style.display = 'block';
+  el.addEventListener('mouseleave', function() { TT.style.display = 'none'; }, { once: true });
+}
+
+/* ══ DICCIONARIO ══════════════════════════════════════════════ */
+async function cargarDiccionario(tipo) {
+  tipo = tipo || 'restaurantes';
+  setStatus('Cargando diccionario...');
+  const data = await apiFetch('/estructuras/diccionario?tipo=' + tipo);
+  if (!data) return;
+
+  document.getElementById('dict-stats').innerHTML =
+    stat(data.total_restaurantes, 'Restaurantes') +
+    stat(data.total_usuarios,     'Usuarios')     +
+    stat('O(1)',                  'Búsqueda');
+
+  document.getElementById('s-dict').textContent = data.total_restaurantes + ' rest.';
+
+  const registros = data.datos || {};
+  const entries   = Object.entries(registros);
+  const grid      = document.getElementById('dict-grid');
+
+  if (!entries.length) { grid.innerHTML = loader('SIN DATOS'); return; }
+
+  grid.innerHTML = entries.map(function(entry) {
+    const id = entry[0];
+    const r  = entry[1];
+    const cal = r.calificacion !== undefined
+      ? '<div class="dict-cal">★ ' + Number(r.calificacion).toFixed(1) + '</div>'
+      : '';
+    const cat = r.categoria
+      ? '<div class="dict-cat">' + r.categoria + '</div>'
+      : '';
+    const rol = r.rol
+      ? '<div class="dict-cat" style="background:#1A1AFF">' + r.rol + '</div>'
+      : '';
+    return (
+      '<div class="dict-card" onmouseenter="dictTip(this,' + id + ')">' +
+        '<div class="dict-id">[' + id + ']</div>' +
+        '<div class="dict-name">' + (r.nombre || r.email || '—') + '</div>' +
+        cal + cat + rol +
+      '</div>'
+    );
+  }).join('');
+
+  setStatus('Diccionario actualizado');
+}
+
+function dictTip(el, id) {
+  const grid = document.getElementById('dict-grid');
+  const cards = grid.querySelectorAll('.dict-card');
+  // Rebuild data from visible cards - just show index info
+  showTip(el, '<b>ID:</b> ' + id + '<br><b>Acceso:</b> O(1)<br><b>Clave hash:</b> int(' + id + ')');
+}
+
+async function buscarEnDiccionario() {
+  const id = document.getElementById('buscar-id').value;
+  if (!id) return;
+  const data = await apiFetch('/estructuras/diccionario?tipo=restaurantes');
+  if (!data) return;
+  const r = data.datos[id];
+  if (r) {
+    alert('ENCONTRADO  ID ' + id + '\n\nNombre: ' + r.nombre + '\nCalif: ' + r.calificacion + '\nCat: ' + r.categoria + '\n\nBusqueda O(1)');
+  } else {
+    alert('ID ' + id + ' no esta en el diccionario.');
+  }
+}
+
+/* ══ PILA ═════════════════════════════════════════════════════ */
+async function cargarPila() {
+  setStatus('Cargando pila...');
+  const data = await apiFetch('/estructuras/pila/historial');
+  if (!data) return;
+
+  document.getElementById('pila-stats').innerHTML =
+    stat(data.tamanio,       'Tamaño')       +
+    stat(data.capacidad,     'Capacidad máx') +
+    stat('LIFO',             'Tipo');
+
+  document.getElementById('s-pila').textContent = data.tamanio + ' acc.';
+
+  const elems = data.elementos || [];
+  const vis   = document.getElementById('pila-visual');
+  if (!elems.length) { vis.innerHTML = loader('PILA VACÍA'); return; }
+
+  vis.innerHTML = elems.map(function(e, i) {
+    const clase  = i === 0 ? 'tope' : (i < 3 ? 'medio' : 'fondo');
+    const badge  = i === 0 ? '<span class="pila-tope-badge">TOPE ▲</span>' : '';
+    const det    = e.detalle
+      ? '<br><span style="opacity:.7;font-size:.7rem">' +
+        (typeof e.detalle === 'object' ? JSON.stringify(e.detalle) : e.detalle) +
+        '</span>'
+      : '';
+    return (
+      '<div class="pila-item ' + clase + '">' +
+        '<div class="pila-idx">' + i + '</div>' +
+        '<div class="pila-accion">' + e.accion + det + '</div>' +
+        badge +
+        '<div class="pila-ts">' + e.timestamp + '</div>' +
+      '</div>'
+    );
+  }).join('');
+
+  setStatus('Pila actualizada');
+}
+
+async function desapilar() {
+  const data = await apiPost('/estructuras/pila/desapilar');
+  if (!data) return;
+  setStatus(data.ok ? 'Desapilado: ' + data.elemento_retirado.accion : 'Pila vacia');
+  await cargarPila();
+}
+
+async function pushManual() {
+  const accion = document.getElementById('pila-accion').value.trim();
+  if (!accion) return;
+  setStatus('Push simulado: ' + accion);
+  document.getElementById('pila-accion').value = '';
+  await cargarPila();
+}
+
+/* ══ LISTA ════════════════════════════════════════════════════ */
+async function cargarLista() {
+  setStatus('Cargando lista enlazada...');
+  const cat  = document.getElementById('lista-cat').value;
+  const path = cat
+    ? '/estructuras/lista/datos?categoria=' + encodeURIComponent(cat)
+    : '/estructuras/lista/datos';
+  const data = await apiFetch(path);
+  if (!data) return;
+
+  document.getElementById('lista-stats').innerHTML =
+    stat(data.total,                      'Total nodos') +
+    stat((data.categorias || []).length,  'Categorías')  +
+    stat('O(1)',                          'Inserción');
+
+  document.getElementById('s-lista').textContent = data.total + ' nodos';
+
+  const sel  = document.getElementById('lista-cat');
+  const cats = data.categorias || [];
+  sel.innerHTML = '<option value="">— Todas —</option>' +
+    cats.map(function(c) { return '<option value="' + c + '">' + c + '</option>'; }).join('');
+
+  renderLista(data.datos || {});
+  setStatus('Lista actualizada');
+}
+
+async function cargarListaOrdenada() {
+  setStatus('Cargando lista ordenada...');
+  const data = await apiFetch('/estructuras/lista/datos?ordenar=true');
+  if (!data) return;
+  const agrupado = {};
+  (data.datos || []).forEach(function(r) {
+    const k = r.categoria || 'General';
+    if (!agrupado[k]) agrupado[k] = [];
+    agrupado[k].push(r);
+  });
+  renderLista(agrupado);
+  setStatus('Lista ordenada por calificacion');
+}
+
+function renderLista(datos) {
+  const vis  = document.getElementById('lista-visual');
+  const cats = Object.keys(datos);
+  if (!cats.length) { vis.innerHTML = loader('SIN DATOS'); return; }
+
+  vis.innerHTML = cats.map(function(cat) {
+    const nodos = datos[cat] || [];
+    if (!nodos.length) return '';
+    const html = nodos.map(function(r, i) {
+      const sig = i < nodos.length - 1 ? nodos[i + 1].nombre : 'NULL';
+      const flecha = i < nodos.length - 1
+        ? '<div class="lista-flecha">→</div>'
+        : '<div class="lista-flecha">→</div><div class="lista-null">NULL</div>';
+      return (
+        '<div class="lista-nodo" onmouseenter="listaTip(this,\'' +
+          escHtml(r.nombre) + '\',' + r.id + ',' + (r.calificacion || 0) + ',\'' +
+          escHtml(sig) + '\')">' +
+          '<div class="nodo-nombre">' + escHtml(r.nombre) + '</div>' +
+          '<div class="nodo-cal">★ ' + Number(r.calificacion || 0).toFixed(1) + '</div>' +
+          '<div style="font-size:.65rem;opacity:.7">ID:' + r.id + '</div>' +
+        '</div>' + flecha
+      );
+    }).join('');
+    return (
+      '<div class="lista-cat-section">' +
+        '<div class="lista-cat-title">📁 ' + cat + ' (' + nodos.length + ')</div>' +
+        '<div class="lista-nodos">' + html + '</div>' +
+      '</div>'
+    );
+  }).join('');
+}
+
+function listaTip(el, nombre, id, cal, sig) {
+  showTip(el,
+    '<b>' + nombre + '</b><br>' +
+    'ID: ' + id + '<br>' +
+    '★ ' + Number(cal).toFixed(1) + '<br>' +
+    'Siguiente → ' + sig
+  );
+}
+
+/* ══ HEAP ═════════════════════════════════════════════════════ */
+async function cargarHeap() {
+  setStatus('Cargando heap...');
+  const k    = document.getElementById('heap-k').value || 5;
+  const data = await apiFetch('/estructuras/heap/prioridad?k=' + k);
+  if (!data) return;
+
+  document.getElementById('heap-stats').innerHTML =
+    stat(data.tamanio,                        'Nodos')   +
+    stat((data.maximo && data.maximo.nombre) ? data.maximo.nombre.slice(0, 8) : '—', 'Máximo') +
+    stat('O(log n)',                          'Push/Pop');
+
+  document.getElementById('s-heap').textContent = data.tamanio + ' nodos';
+
+  heapData = data.arreglo_interno || [];
+  renderHeapArray(heapData);
+  dibujarHeap();
+  setStatus('Heap actualizado');
+}
+
+function renderHeapArray(arr) {
+  const niveles = ['raiz','nivel1','nivel1','nivel2','nivel2','nivel2','nivel2'];
+  document.getElementById('heap-array').innerHTML = arr.map(function(n, i) {
+    const clase = i < niveles.length ? niveles[i] : 'nivel4';
+    return (
+      '<div class="heap-slot ' + clase + '" onmouseenter="heapTip(this,' + i + ')">' +
+        '<div class="heap-idx">[' + i + ']</div>' +
+        '<div style="font-size:.7rem;font-weight:700">' + (n.nombre ? n.nombre.slice(0, 10) : '—') + '</div>' +
+        '<div class="heap-cal">★' + (n.calificacion ? n.calificacion.toFixed(1) : '0') + '</div>' +
+      '</div>'
+    );
+  }).join('');
+}
+
+function heapTip(el, i) {
+  const n = heapData[i];
+  if (!n) return;
+  showTip(el,
+    '<b>' + (n.nombre || '—') + '</b><br>' +
+    'Cal: ' + (n.calificacion || 0) + '<br>' +
+    'Índice: ' + n.posicion_arreglo + '<br>' +
+    'Padre: ' + (n.indice_padre !== null && n.indice_padre !== undefined ? n.indice_padre : 'raíz') + '<br>' +
+    'H.izq: ' + (n.indice_hijo_izq !== null && n.indice_hijo_izq !== undefined ? n.indice_hijo_izq : '—') + '<br>' +
+    'H.der: ' + (n.indice_hijo_der !== null && n.indice_hijo_der !== undefined ? n.indice_hijo_der : '—')
+  );
+}
+
+function dibujarHeap() {
+  const canvas = document.getElementById('heap-canvas');
+  const ctx    = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  if (!heapData.length) {
+    ctx.fillStyle = '#39FF14';
+    ctx.font      = 'bold 18px Bangers, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('HEAP VACÍO — presiona Top-K', W / 2, H / 2);
+    return;
+  }
+
+  const n   = Math.min(heapData.length, 15);
+  const pos = new Array(n);
+
+  function calcPos(i, x, y, spread) {
+    if (i >= n) return;
+    pos[i] = { x: x, y: y };
+    var izq = 2 * i + 1, der = 2 * i + 2;
+    var nextY = y + 65, half = spread / 2.2;
+    if (izq < n) calcPos(izq, x - half, nextY, half);
+    if (der < n) calcPos(der, x + half, nextY, half);
+  }
+  calcPos(0, W / 2, 40, W * 0.45);
+
+  var colores = ['#FF3B1E','#FF8C00','#FFE000','#39FF14','#00D4FF','#C800FF'];
+
+  /* aristas */
+  ctx.lineWidth = 2;
+  for (var i = 0; i < n; i++) {
+    if (!pos[i]) continue;
+    [2*i+1, 2*i+2].forEach(function(c) {
+      if (c < n && pos[c]) {
+        ctx.strokeStyle = '#555';
+        ctx.beginPath();
+        ctx.moveTo(pos[i].x, pos[i].y);
+        ctx.lineTo(pos[c].x, pos[c].y);
+        ctx.stroke();
+      }
+    });
+  }
+
+  /* nodos */
+  for (var j = 0; j < n; j++) {
+    if (!pos[j]) continue;
+    var d     = heapData[j];
+    var nivel = Math.floor(Math.log2(j + 1));
+    var R     = 24;
+    var col   = colores[Math.min(nivel, colores.length - 1)];
+
+    ctx.beginPath();
+    ctx.arc(pos[j].x + 4, pos[j].y + 4, R, 0, Math.PI * 2);
+    ctx.fillStyle = '#0A0A0A';
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(pos[j].x, pos[j].y, R, 0, Math.PI * 2);
+    ctx.fillStyle   = col;
+    ctx.fill();
+    ctx.strokeStyle = '#0A0A0A';
+    ctx.lineWidth   = 3;
+    ctx.stroke();
+
+    ctx.fillStyle    = '#0A0A0A';
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font         = 'bold 9px Courier New';
+    ctx.fillText('[' + j + ']', pos[j].x, pos[j].y - 10);
+
+    ctx.font = 'bold 11px Bangers, sans-serif';
+    ctx.fillText('★' + (d.calificacion ? d.calificacion.toFixed(1) : '0'), pos[j].x, pos[j].y + 9);
+  }
+
+  if (pos[0]) {
+    ctx.fillStyle = '#FFE000';
+    ctx.font      = 'bold 10px Oswald, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('RAÍZ = MÁXIMO', pos[0].x, pos[0].y - 40);
+  }
+}
+
+/* ══ RESUMEN ══════════════════════════════════════════════════ */
+async function cargarResumen() {
+  const data = await apiFetch('/estructuras/resumen');
+  if (!data) return;
+
+  document.getElementById('s-dict').textContent  = data.diccionario.total_restaurantes + ' rest.';
+  document.getElementById('s-pila').textContent  = data.pila.tamanio + ' acc.';
+  document.getElementById('s-lista').textContent = data.lista.total + ' nodos';
+  document.getElementById('s-heap').textContent  = data.heap.tamanio + ' nodos';
+
+  document.getElementById('hero-grid').innerHTML =
+    heroItem('DICT',  data.diccionario.total_restaurantes + ' restaurantes · ' + data.diccionario.total_usuarios + ' usuarios') +
+    heroItem('PILA',  data.pila.tamanio + ' acciones · tope: ' + ((data.pila.tope && data.pila.tope.accion) || '—')) +
+    heroItem('LISTA', data.lista.total + ' nodos · ' + data.lista.categorias.length + ' categorías') +
+    heroItem('HEAP',  data.heap.tamanio + ' nodos · máx: ' + ((data.heap.maximo && data.heap.maximo.nombre) || '—'));
+}
+
+/* ══ AUTO-REFRESH ═════════════════════════════════════════════ */
+function toggleAuto() {
+  if (autoTimer) {
+    clearInterval(autoTimer);
+    autoTimer = null;
+    document.getElementById('auto-label').textContent = 'OFF';
+  } else {
+    var ms = parseInt(document.getElementById('auto-interval').value);
+    autoTimer = setInterval(cargarTodo, ms);
+    document.getElementById('auto-label').textContent = 'ON';
+    setStatus('Auto-refresh cada ' + (ms / 1000) + 's');
+  }
+}
+
+/* ══ CARGA TOTAL ══════════════════════════════════════════════ */
+async function cargarTodo() {
+  await Promise.all([
+    cargarDiccionario('restaurantes'),
+    cargarPila(),
+    cargarLista(),
+    cargarHeap(),
+    cargarResumen()
+  ]);
+  setStatus('Todo actualizado · ' + new Date().toLocaleTimeString());
+}
+
+/* ── pequeños helpers de render ── */
+function stat(val, lbl) {
+  return '<div class="stat"><div class="val">' + val + '</div><div class="lbl">' + lbl + '</div></div>';
+}
+function loader(txt) {
+  return '<div class="loader">' + txt + '</div>';
+}
+function heroItem(key, val) {
+  return '<div class="hero-item"><div class="h-key">' + key + '</div><div class="h-val">' + val + '</div></div>';
+}
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+/* ── init ── */
+cargarTodo();
+</script>
+</body>
+</html>
