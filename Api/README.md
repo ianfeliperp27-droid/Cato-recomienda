@@ -1,85 +1,142 @@
-# Cato-Recomienda 🦆
+# 🍽️ Cato-Recomienda
 
-API REST + dashboard Pop-Art para descubrir restaurantes cerca de la Universidad Católica de Colombia.
+API REST + dashboard para descubrir y recomendar restaurantes cerca de la Universidad Católica de Colombia.
 
-**Versión 4.1** — Refactor con auditoría SOLID, hashing seguro, recuperación de contraseña.
+**Versión final 2026-1** — Arquitectura MVC, SOLID, patrones GoF, pruebas automatizadas y CI/CD.
 
-## Stack
+> **Equipo:**  
+> Daniel Fernando Blanco Sánchez (67001762) · Ian Felipe Ramos Páez (67001667)  
+> Juan Pablo Pérez Acosta (67001752) · Leonardo Jiménez Castiblanco (67001662)  
+> **Docente:** Andrés Torres — Universidad Católica de Colombia · 2026-1  
+> **URL pública:** https://catorecomienda.azurewebsites.net
 
-- **Backend:** FastAPI + SQLModel + SQLite (con migración prevista a PostgreSQL en producción)
-- **Auth:** JWT (PyJWT) + PBKDF2-HMAC-SHA256 con salt (con compatibilidad hacia atrás para usuarios v1 que tenían SHA256 plano)
-- **Frontend:** HTML/CSS/JS puro estilo Pop-Art con fuente Bangers
-- **Patrones de diseño:** Factory Method, Adapter, Decorator, Observer, Strategy
-- **Repositorios:** Restaurante, Categoría, Reseña, Usuario
+---
 
-## Cambios respecto a v4.0
+## Stack tecnológico
 
-- **SRP estricto:** las rutas ya no contienen `session.exec()`/SQL directo. Se crearon `repositories/categoria.py` y `repositories/resena.py`.
-- **Código muerto eliminado:** `static/login.html` huérfano, método `filtrar()` en `RestauranteRepository`, `OrdenarPorNombre` en strategy, ruta `/login`, dependencia `requests` no usada, `FastApi.gitignore` mal formado.
-- **Hashing seguro:** PBKDF2 con salt aleatorio reemplaza al SHA256 plano. Los hashes viejos de la BD se migran automáticamente la siguiente vez que el usuario hace login.
-- **Lifespan moderno:** `FastApi.py` usa `lifespan` en lugar de `@app.on_event("startup")` (deprecated desde FastAPI 0.110).
-- **Flujo "olvidé contraseña":** endpoints `/usuarios/forgot-password` y `/usuarios/reset-password` con token JWT de 30 min.
-- **UX:** dashboard con link "¿Olvidaste tu contraseña?", sub-vistas de recuperación y reset, campo de confirmar contraseña con validación en vivo, mejor feedback de errores.
-- **`.gitignore` real** (no el script shell que lo crea) + `.env.example` como plantilla pública.
+- **Backend:** FastAPI + SQLModel + SQLite
+- **Auth:** JWT (PyJWT) + PBKDF2-HMAC-SHA256 con salt
+- **Frontend:** HTML/CSS/JS estático con diseño Pop-Art
+- **Pruebas:** pytest + httpx (14 tests de integración)
+- **CI/CD:** GitHub Actions
+- **Despliegue:** Azure App Service
 
-## Estructura
+---
+
+## 🏗️ Arquitectura del Proyecto
 
 ```
 Api/
-├── FastApi.py              ← Entry point (con lifespan)
-├── database.py             ← Engine con Factory Pattern
-├── .env                    ← DATABASE_URL, HTML_DIR, SECRET_KEY  (NO subir)
-├── .env.example            ← Plantilla pública
-├── .gitignore              ← Excluye .env, *.db, __pycache__
-├── startup.sh              ← Gunicorn para Azure
+├── main.py                  # Punto de entrada — registra routers
+├── database.py              # Engine SQLite con Factory Pattern
+├── .env                     # Variables de entorno (NO subir al repo)
+├── .env.example             # Plantilla pública
+├── .gitignore
+├── startup.sh               # Gunicorn para Azure
 ├── requirements.txt
-├── models/                 ← SQLModel tables y DTOs
+├── models/                  # MODELOS — esquemas SQLModel + Pydantic
 │   ├── restaurante.py
 │   └── usuario.py
-├── repositories/           ← Toda consulta SQL vive aquí
+├── repositories/            # LÓGICA DE NEGOCIO — toda consulta SQL aquí (SRP)
 │   ├── restaurante.py
-│   ├── categoria.py        ← (nuevo)
-│   ├── resena.py           ← (nuevo)
+│   ├── categoria.py
+│   ├── resena.py
 │   └── usuario.py
-├── routes/                 ← Endpoints HTTP (sin SQL directo)
+├── routes/                  # CONTROLADORES — endpoints FastAPI
 │   ├── restaurantes.py
-│   ├── usuarios.py         ← + forgot/reset
+│   ├── usuarios.py
 │   └── vistas.py
 ├── services/
-│   └── auth.py             ← JWT + hashing PBKDF2 (con fallback legacy)
-├── patterns/               ← Los 5 patrones de diseño
-│   ├── adapter.py
-│   ├── decorator.py
+│   ├── auth.py              # JWT + PBKDF2 hashing
+│   └── uploads.py
+├── patterns/                # Patrones GoF
 │   ├── factory.py
 │   ├── observer.py
-│   └── strategy.py
-└── static/
-    └── dashboard.html      ← Pop-Art con auth integrada
+│   ├── strategy.py
+│   ├── adapter.py
+│   └── decorator.py
+├── static/
+│   └── dashboard.html
+├── tests/
+│   ├── conftest.py
+│   └── test_main.py
+└── .github/
+    └── workflows/
+        └── ci-cd.yml
 ```
 
-## Correr en local
+---
+
+## 📋 Requisitos Previos
+
+- Python 3.11+, pip, Git
 
 ```bash
-cd Api
-cp .env.example .env       # primera vez
-pip install -r requirements.txt
-uvicorn FastApi:app --reload
+python --version
+pip --version
+git --version
 ```
 
-Visita http://127.0.0.1:8000
+---
 
-## Endpoints
+## 🚀 Instalación Local
+
+```bash
+git clone https://github.com/ianfeliperp27-droid/Cato-recomienda.git
+cd Cato-recomienda
+git checkout main
+cd Api
+python3 -m venv venv
+source venv/bin/activate        # Linux/macOS
+# .\venv\Scripts\Activate.ps1  # Windows
+pip install -r requirements.txt
+```
+
+---
+
+## ⚙️ Variables de Entorno
+
+Crear `.env` dentro de `Api/`:
+
+```env
+DATABASE_URL=sqlite:///restaurantes.db
+HTML_DIR=./static
+SECRET_KEY=cato-recomienda-secret-2026
+ENTORNO=desarrollo
+```
+
+> ⚠️ Nunca subir `.env` al repo. En producción generar SECRET_KEY con:
+> `python -c "import secrets; print(secrets.token_urlsafe(64))"`
+
+---
+
+## ▶️ Ejecución de la Aplicación
+
+```bash
+# Desarrollo
+uvicorn main:app --reload --port 8000
+
+# Producción
+gunicorn -w 1 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000 main:app
+```
+
+- App: http://localhost:8000
+- Docs: http://localhost:8000/docs
+
+---
+
+## 🔌 Endpoints
 
 ### Públicos
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| GET | `/` | Dashboard |
-| GET | `/health` | Health check |
-| GET | `/restaurantes/` | Lista (acepta `?categoria=`, `?activo=`, `?rating_min=`, `?ordenar=rating`) |
+| GET | `/` | Dashboard principal |
+| GET | `/health` | Estado del servicio |
+| GET | `/restaurantes/` | Listar (filtros: `?categoria=`, `?rating_min=`, `?ordenar=rating`) |
 | GET | `/restaurantes/{id}` | Detalle |
-| GET | `/restaurantes/categorias` | Lista de categorías |
-| GET | `/restaurantes/{id}/resenas` | Reseñas del restaurante |
+| GET | `/restaurantes/categorias` | Categorías |
+| GET | `/restaurantes/{id}/resenas` | Reseñas |
 
 ### Autenticación
 
@@ -87,68 +144,127 @@ Visita http://127.0.0.1:8000
 |--------|------|------|----------|
 | POST | `/usuarios/registro` | `{ nombre, email, password }` | `{ usuario, token }` |
 | POST | `/usuarios/login` | `{ email, password }` | `{ usuario, token }` |
-| POST | `/usuarios/forgot-password` | `{ email }` | `{ mensaje, debug_token? }` |
+| POST | `/usuarios/forgot-password` | `{ email }` | `{ mensaje }` |
 | POST | `/usuarios/reset-password` | `{ token, nueva_password }` | `{ ok }` |
 
-> **Nota:** `forgot-password` devuelve siempre el mismo mensaje (no revela si el email existe). En modo `ENTORNO=desarrollo` también devuelve `debug_token` para poder probar el flujo sin SMTP.
-
-### Protegidos (header `Authorization: Bearer <token>`)
+### Protegidos (`Authorization: Bearer <token>`)
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
 | POST | `/restaurantes/` | Crear restaurante |
 | PUT | `/restaurantes/{id}` | Editar |
 | DELETE | `/restaurantes/{id}` | Eliminar |
-| POST | `/restaurantes/{id}/resenas` | Crear reseña (recalcula promedio) |
+| POST | `/restaurantes/{id}/resenas` | Crear reseña |
 | POST | `/restaurantes/categorias` | Nueva categoría |
 
-## Deploy a Azure App Service
+---
 
-### Variables de entorno requeridas
+## 🧪 Ejecución de Pruebas
 
-| Variable | Desarrollo | Producción |
-|----------|-----------|------------|
-| `DATABASE_URL` | `sqlite:///restaurantes.db` | `postgresql://user:pass@host/db` |
-| `HTML_DIR` | `./static` | `./static` |
-| `SECRET_KEY` | cualquiera | **largo y aleatorio** — generar con `python -c "import secrets;print(secrets.token_urlsafe(64))"` |
-| `ENTORNO` | `desarrollo` | `produccion` |
+```bash
+cd Api
+pip install pytest httpx
+pytest tests/ -v
+```
 
-⚠️ En `produccion`, el endpoint de forgot-password **no** devuelve `debug_token` en la respuesta. Conectar un servicio de correo real para enviarlo.
+**Resultado esperado: 14 passed.**
 
-### Comando de deploy
+```
+TestUsuarios::test_registro_usuario_exitoso        PASSED
+TestUsuarios::test_registro_email_duplicado        PASSED
+TestUsuarios::test_registro_campos_invalidos       PASSED
+TestUsuarios::test_login_exitoso                   PASSED
+TestUsuarios::test_login_credenciales_incorrectas  PASSED
+TestRestaurantes::test_listar_restaurantes_publico PASSED
+TestRestaurantes::test_crear_restaurante_exitoso   PASSED
+TestRestaurantes::test_obtener_restaurante_inexistente PASSED
+TestRestaurantes::test_eliminar_restaurante_inexistente PASSED
+TestVistas::test_home_retorna_html                 PASSED
+TestVistas::test_dashboard_accesible               PASSED
+TestVistas::test_health_check                      PASSED
+TestHTTPCompliance::test_ruta_inexistente          PASSED
+TestHTTPCompliance::test_content_type_json_en_api  PASSED
+14 passed in 1.54s
+```
+
+---
+
+## 🔄 Pipeline CI/CD
+
+`.github/workflows/ci-cd.yml` ejecuta en cada push a `main` o `APIs`:
+
+1. Instala dependencias desde `Api/requirements.txt`
+2. Corre pytest con SQLite en memoria
+3. **Bloquea el deploy** si algún test falla (`needs: test`)
+4. Dispara deploy automático solo si todos los tests pasan
+
+---
+
+## ☁️ Despliegue en Azure
+
+### Variables requeridas en Azure App Service
+
+| Variable | Valor |
+|----------|-------|
+| `DATABASE_URL` | `sqlite:///restaurantes.db` |
+| `HTML_DIR` | `./static` |
+| `SECRET_KEY` | cadena larga y aleatoria |
+| `ENTORNO` | `produccion` |
+| `SCM_DO_BUILD_DURING_DEPLOYMENT` | `true` |
+
+### Startup Command
+
+```
+gunicorn -w 1 -k uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000 main:app
+```
+
+### Deploy manual con ZIP
 
 ```bash
 cd Api
 zip -r ../deploy.zip . -x "*.db" "__pycache__/*" ".env" ".git/*"
-az webapp deployment source config-zip \
-  -g catorecomienda2 \
-  -n catorecomienda \
-  --src ../deploy.zip
+az webapp deployment source config-zip -g catorecomienda2 -n catorecomienda --src ../deploy.zip
 ```
 
-## Patrones de diseño aplicados
+---
+
+## 🎨 Patrones de Diseño GoF
 
 | Patrón | Ubicación | Función |
 |--------|-----------|---------|
-| **Factory Method** | `patterns/factory.py` | Crea engine SQLite o PostgreSQL según `ENTORNO` |
-| **Adapter** | `patterns/adapter.py` | Define `IRestauranteRepository` como interfaz (DIP) |
-| **Decorator** | `patterns/decorator.py` | `LoggingRepositoryDecorator` envuelve el repo (OCP) |
-| **Observer** | `patterns/observer.py` | Notifica eventos (crear restaurante, nueva reseña) |
-| **Strategy** | `patterns/strategy.py` | Pipeline de filtros intercambiables |
+| Factory Method | `patterns/factory.py` | Crea engine SQLite o PostgreSQL según `ENTORNO` |
+| Adapter | `patterns/adapter.py` | Define `IRestauranteRepository` como interfaz (DIP) |
+| Decorator | `patterns/decorator.py` | `LoggingRepositoryDecorator` envuelve el repo (OCP) |
+| Observer | `patterns/observer.py` | Notifica eventos: crear restaurante, nueva reseña |
+| Strategy | `patterns/strategy.py` | Pipeline de filtros intercambiables |
 
-## SOLID aplicado en esta versión
+---
 
-- **SRP:** rutas → repos → modelos. Cada capa hace una sola cosa. Las rutas ya no tienen `session.exec()`.
-- **OCP:** agregar un nuevo filtro = crear una clase nueva en `strategy.py`; no se modifica el resto.
-- **LSP:** `LoggingRepositoryDecorator` es sustituible donde se espera `IRestauranteRepository`.
-- **ISP:** la interfaz `IRestauranteRepository` solo expone los métodos que las rutas realmente usan; `filtrar()` se eliminó cuando dejó de usarse.
-- **DIP:** las rutas dependen de la interfaz `IRestauranteRepository` (vía `Depends`), no de la implementación concreta.
+## ✅ SOLID aplicado
 
-## Equipo
+- **SRP:** rutas → repos → modelos. Las rutas no tienen `session.exec()` directo.
+- **OCP:** nuevo filtro = nueva clase en `strategy.py`, sin modificar el resto.
+- **LSP:** `LoggingRepositoryDecorator` sustituible donde se espera `IRestauranteRepository`.
+- **ISP:** `IRestauranteRepository` solo expone métodos que las rutas realmente usan.
+- **DIP:** las rutas dependen de la interfaz, no de la implementación concreta.
 
-- Daniel Fernando Blanco Sánchez — 67001762
-- Ian Felipe Ramos Páez — 67001667
-- Juan Pablo Pérez Acosta — 67001752
-- Leonardo Jiménez Castiblanco — 67001662
+---
 
-Docente: Andrés Torres — Universidad Católica de Colombia — 2026-1
+## 🎨 Diseño Visual
+
+### Paleta de Colores
+
+| Rol | Hex | Contraste WCAG |
+|-----|-----|----------------|
+| Primario (naranja) | `#FF6B35` | ≥ 4.5:1 sobre blanco |
+| Secundario (azul oscuro) | `#1A1A2E` | ≥ 7:1 sobre blanco |
+| Acento (dorado) | `#F5A623` | ≥ 3:1 sobre oscuro |
+| Fondo | `#FFFFFF` | — |
+| Texto | `#2C2C2C` | ≥ 7:1 sobre blanco |
+
+### Patrón F de Lectura
+
+- **F-top:** Logo + navegación + barra de búsqueda
+- **Segunda franja:** Filtros de categoría y calificación
+- **F-stem (izquierda):** Tarjetas con nombre y calificación en la parte superior
+- **Zona derecha:** Información complementaria y filtros avanzados
