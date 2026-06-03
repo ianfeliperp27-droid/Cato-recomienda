@@ -1,0 +1,40 @@
+name: CI/CD - Cato-Recomienda
+
+on:
+  push:
+    branches: [ main, APIs ]
+  pull_request:
+    branches: [ main, APIs ]
+
+jobs:
+  test:
+    name: Suite pytest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Instalar dependencias
+        run: |
+          pip install -r requirements.txt
+          pip install pytest httpx
+      - name: Ejecutar pruebas
+        env:
+          DATABASE_URL: "sqlite://"
+          SECRET_KEY: "test-secret-key-ci"
+          HTML_DIR: "./static"
+          ENTORNO: "test"
+        run: pytest tests/ -v --tb=short
+
+  deploy:
+    name: Deploy a Render
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Trigger Render deploy
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          curl -s -X POST "$RENDER_DEPLOY_HOOK" --fail
