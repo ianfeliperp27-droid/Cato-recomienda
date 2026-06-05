@@ -161,3 +161,36 @@ def reset_password(datos: ResetPasswordIn, session: Session = Depends(get_sessio
 
     repo.actualizar_password(usuario, datos.nueva_password)
     return {"ok": True, "mensaje": "Contrasena actualizada correctamente"}
+
+@router.post("/seed-admin")
+def seed_admin(session: Session = Depends(get_session)):
+    """Endpoint temporal para crear el primer admin. Eliminar después."""
+    import os
+    if os.getenv("ENTORNO") == "produccion":
+        raise HTTPException(status_code=404, detail="No existe")
+
+    repo = UsuarioRepository(session)
+
+    if repo.obtener_por_email("admin@cato.com"):
+        return {"ok": True, "mensaje": "Admin ya existe"}
+
+    from models.usuario import UsuarioCreate
+
+    datos = UsuarioCreate(
+        nombre="Admin Cato",
+        email="admin@cato.com",
+        password="Admin2026!"
+    )
+
+    usuario = repo.crear(datos)
+    usuario.rol = "admin"
+
+    session.add(usuario)
+    session.commit()
+
+    return {
+        "ok": True,
+        "email": "admin@cato.com",
+        "password": "Admin2026!"
+    }
+
