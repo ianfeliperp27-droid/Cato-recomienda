@@ -640,7 +640,7 @@
           <input type="password" id="regPass2" placeholder="••••••••" oninput="validarRegistro()">
           <small id="regPass2Hint" style="font-size:0.75rem;color:#888;"></small>
         </div>
-        <button class="btn btn-azul" id="btnRegistro" style="width:100%" onclick="hacerRegistro()" disabled>CREAR CUENTA</button>
+        <div class="form-group"><label>Tipo de cuenta</label><select id="regRol"><option value="user">👤 Usuario — quiero hacer reseñas</option><option value="restaurante">🍽️ Restaurante — quiero registrar mi local</option></select></div><button class="btn btn-azul" id="btnRegistro" style="width:100%" onclick="hacerRegistro()" disabled>CREAR CUENTA</button>
         <div id="regMsg" class="form-msg"></div>
       </div>
 
@@ -767,7 +767,7 @@
       info.style.display = 'inline';
       btnLogout.style.display = 'inline-flex';
       btnLogin.style.display = 'none';
-      btnAgregar.style.display = 'inline-flex';
+      btnAgregar.style.display = (USUARIO.rol === 'restaurante' || USUARIO.rol === 'admin') ? 'inline-flex' : 'none';
     } else {
       info.style.display = 'none';
       btnLogout.style.display = 'none';
@@ -1151,7 +1151,7 @@
     fetch('/usuarios/registro', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nombre: nombre, email: email, password: pass })
+      body: JSON.stringify({ nombre: nombre, email: email, password: pass, rol: document.getElementById('regRol').value })
     }).then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
       .then(function(res) {
         if (res.ok) {
