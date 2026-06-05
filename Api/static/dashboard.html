@@ -918,7 +918,7 @@
 
     html += '<hr style="margin:20px 0;border:2px dashed #ddd;">';
     html += '<h3 style="font-family:Bangers,cursive;font-size:24px;margin-bottom:10px">DEJA TU RESEÑA</h3>';
-    if (TOKEN) {
+    if (TOKEN && USUARIO && USUARIO.rol === 'user') {
       html += '<div class="stars" id="stars">';
       for (var s = 1; s <= 5; s++) {
         html += '<span class="star" onclick="setPuntuacion(' + s + ')">★</span>';
@@ -928,7 +928,7 @@
       html += '<button class="btn btn-rojo" style="width:100%" onclick="enviarResena()">¡PUBLICAR!</button>';
       html += '<div id="resenaMsg" class="form-msg"></div>';
     } else {
-      html += '<p class="form-msg" style="color:#666">Inicia sesión para dejar reseñas.</p>';
+      html += '<p class="form-msg" style="color:#666">' + (TOKEN ? 'Las cuentas de restaurante no pueden dejar reseñas.' : 'Inicia sesión para dejar reseñas.') + '</p>';
       html += '<button class="btn" style="width:100%;margin-top:8px" onclick="cerrarModal(\'modalDetalle\');abrirLogin()">¡INGRESA!</button>';
     }
 
