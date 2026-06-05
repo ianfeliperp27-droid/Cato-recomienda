@@ -7,6 +7,7 @@ from database import get_session
 
 TEST_DATABASE_URL = "sqlite://"
 
+
 @pytest.fixture(name="engine", scope="session")
 def engine_fixture():
     engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False}, poolclass=StaticPool)
@@ -56,7 +57,7 @@ class TestUsuarios:
 class TestRestaurantes:
     @pytest.fixture(autouse=True)
     def auth_headers(self, client):
-        client.post("/usuarios/registro", json={"nombre": "Admin", "email": "admin_test@cato.com", "password": "Admin123!"})
+        client.post("/usuarios/registro", json={"nombre": "Admin", "email": "admin_test@cato.com", "password": "Admin123!", "rol": "restaurante"})
         resp = client.post("/usuarios/login", json={"email": "admin_test@cato.com", "password": "Admin123!"})
         data = resp.json()
         token = data.get("access_token") or data.get("token", "")

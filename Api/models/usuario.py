@@ -3,7 +3,7 @@ from typing import Optional
 from pydantic import field_validator
 
 
-ROLES_VALIDOS = {"user", "admin", "cliente"}  # "cliente" se acepta por compat con BD v4.0
+ROLES_VALIDOS = {"user", "admin", "restaurante", "cliente"} # "cliente" se acepta por compat con BD v4.0
 
 
 class Usuario(SQLModel, table=True):

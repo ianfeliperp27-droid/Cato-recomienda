@@ -16,8 +16,9 @@ from patterns.strategy import (
     FiltroPorCategoria, FiltroPorEstado,
     FiltroPorRating, OrdenarPorRating,
 )
+from services.auth import usuario_actual, verificar_admin, verificar_restaurante, verificar_restaurante
 from patterns.observer import publicador
-from services.auth import usuario_actual, verificar_admin
+from services.auth import usuario_actual, verificar_admin, verificar_restaurante
 from services.uploads import guardar_imagen, eliminar_imagen_si_local
 
 
@@ -71,6 +72,7 @@ def listar(
 
 # -------- Categorias --------
 
+
 @router.get("/categorias")
 def listar_categorias(session: Session = Depends(get_session)):
     cats = CategoriaRepository(session).obtener_todas()
@@ -81,7 +83,7 @@ def listar_categorias(session: Session = Depends(get_session)):
 def crear_categoria(
     datos: CategoriaCreate,
     session: Session = Depends(get_session),
-    _usuario: dict = Depends(usuario_actual),
+    _usuario: dict = Depends(verificar_restaurante),
 ):
     return CategoriaRepository(session).crear(datos)
 
@@ -102,7 +104,7 @@ def obtener(id: int, session: Session = Depends(get_session)):
 def crear(
     datos: RestauranteCreate,
     session: Session = Depends(get_session),
-    _usuario: dict = Depends(usuario_actual),
+    _usuario: dict = Depends(verificar_restaurante),
 ):
     nuevo = _repo(session).crear(datos)
     publicador.notificar_creacion(nuevo)
@@ -124,7 +126,7 @@ async def crear_con_imagen(
     activo: bool = Form(True),
     imagen: UploadFile = File(...),
     session: Session = Depends(get_session),
-    _usuario: dict = Depends(usuario_actual),
+    _usuario: dict = Depends(verificar_restaurante),
 ):
     """
     Crea un restaurante recibiendo metadatos via Form y la imagen via
@@ -162,7 +164,7 @@ def actualizar(
     id: int,
     datos: RestauranteUpdate,
     session: Session = Depends(get_session),
-    _usuario: dict = Depends(usuario_actual),
+    _usuario: dict = Depends(verificar_restaurante),
 ):
     actualizado = _repo(session).actualizar(id, datos)
     if not actualizado:

@@ -15,6 +15,7 @@ ALGORITHM = "HS256"
 EXPIRACION_HORAS = 24
 
 
+
 def crear_token(usuario_id: int, email: str, rol: str = "cliente") -> str:
     payload = {
         "sub": str(usuario_id),
@@ -124,5 +125,15 @@ def verificar_admin(usuario: dict = Depends(usuario_actual)) -> dict:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Privilegios insuficientes. Solo administradores pueden ejecutar esta accion.",
+        )
+    return usuario
+
+
+def verificar_restaurante(usuario: dict = Depends(usuario_actual)) -> dict:
+    """Solo rol restaurante o admin pueden crear/editar restaurantes."""
+    if usuario.get("rol") not in ("restaurante", "admin"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Solo cuentas de restaurante pueden realizar esta accion.",
         )
     return usuario
